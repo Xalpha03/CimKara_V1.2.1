@@ -1,0 +1,83 @@
+<table class="table table-bordered border-black table-hover table-sm align-middle text-center mb-0">
+  <thead>
+    <tr>
+      <th colspan="2" class="bg-light"></th>
+      <th class="text-dark bg-success-subtle fw-bolder">Post</th>
+      <th class="text-dark bg-orange-100 fw-bolder">Conducteur</th>
+      <th colspan="2" class="bg-light"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="text-dark bg-light fw-bolder">Packing Shift A Leader</td>
+
+      {% if object_pack_06h_14h or object_pack_06h_18h %}
+        {% for p in object_pack %}
+          {% if p.post.post == '06H-14H' or p.post.post == '06H-18H' %}
+            <td class="text-dark bg-info-subtle fw-bolder">{{ p.user.last_name }}</td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder">—</td>
+      {% endif %}
+
+      <td class="text-dark bg-light fw-bolder">A</td>
+      {% if object_broy_06h_14h or object_broy_06h_18h %}
+        {% for p in object_broy %}
+          {% if p.totaliseur.post.post == '06H-14H' or p.totaliseur.post.post == '06H-18H' %}
+            <td class="text-dark bg-info-subtle fw-bolder">{{ p.totaliseur.user.last_name }}</td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder">—</td>
+      {% endif %}
+      <td class="text-dark bg-light fw-bolder">Grindind Shift A Leader</td>
+      <td class="text-dark bg-info-subtle fw-bolder">—</td>
+    </tr>
+    <tr>
+      <td class="text-dark bg-light fw-bolder">Packing Shift A Leader</td>
+      {% if object_pack_14h_22h  %}
+        {% for p in object_pack_14h_22h %}
+            <td class="text-dark bg-info-subtle fw-bolder">{{ p.user.last_name }}</td>
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder">—</td>
+      {% endif %}
+      <td class="text-dark bg-light fw-bolder">B</td>
+      {% if object_broy_14h_22h  %}
+        {% for p in object_broy_14h_22h %}
+            <td class="text-dark bg-info-subtle fw-bolder">{{ p.totaliseur.user.last_name }}</td>
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder">—</td>
+      {% endif %}
+      <td class="text-dark bg-light fw-bolder">Grindind Shift A Leader</td>
+      <td class="text-dark bg-info-subtle fw-bolder">—</td>
+    </tr>
+    <tr>
+      <td class="text-dark bg-light fw-bolder">Packing Shift A Leader</td>
+      {% if object_pack_22h_06h or object_pack_18h_06h %}
+        {% for p in object_pack %}
+          {% if p.post.post == '22H-06H' or p.post.post == '18H-06H' %}
+            <td class="text-dark bg-info-subtle fw-bolder">{{ p.user.last_name }}</td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder">—</td>
+      {% endif %}
+      <td class="text-dark bg-light fw-bolder">C</td>
+      {% if object_broy_22h_06h or object_broy_18h_06h %}
+        {% for p in object_broy %}
+          {% if p.totaliseur.post.post == '22H-06H' or p.totaliseur.post.post == '18H-06H' %}
+            <td class="text-dark bg-info-subtle fw-bolder">{{ p.totaliseur.user.last_name }}</td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder">—</td>
+      {% endif %}
+      <td class="text-dark bg-light fw-bolder">Grindind Shift A Leader</td>
+      <td class="text-dark bg-info-subtle fw-bolder">—</td>
+    </tr>
+  </tbody>
+</table>
+

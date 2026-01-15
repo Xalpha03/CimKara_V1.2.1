@@ -1,0 +1,162 @@
+<!-- 🧭 Titre principal -->
+{% comment %} <div class="text-center bg-primary text-white py-3 rounded shadow-sm mb-4 fs-4 fw-bold">🛠️ Broyage du {{ search_date }}</div> {% endcomment %}
+
+<div class="
+{% if poste == '06H-18H' or poste == '18H-06H' %}
+    
+  col-md-6
+
+  {% elif poste == '06H-14H' or poste == '14H-22H' or poste == '22H-06H' %}
+     
+  col-md-4
+
+  {% endif %}
+  ">
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 hover-shadow">
+    <div class="card-header bg-{{ couleur }} text-white text-center fs-5">🕒 Poste {{ poste }}</div>
+    <div class="card-body table-responsive p-0">
+      <!-- 🔢 Tableau Totaliseur -->
+      <table class="table table-bordered table-sm mb-0 text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th colspan="3">TOTALISEUR</th>
+            <th>ACTION</th>
+          </tr>
+          <tr class="text-muted small">
+            <td>CLINKER</td>
+            <td>GYPSE</td>
+            <td>DOLOMITE</td>
+            <td></td>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- ⚙️ Bloc TOTALISEUR 1 -->
+          {% if object_totali_1 %}
+            {% for t in object_totali_1 %}
+              <tr>
+                <td>{{ t.clinker_totaliseur_1|floatformat:0 }}</td>
+                <td>{{ t.gypse_totaliseur_1|floatformat:0 }}</td>
+                <td>{{ t.dolomite_totaliseur_1|floatformat:0 }}</td>
+                <td>
+                  {% if user.is_authenticated and section == "broyage" %}
+                    <a href="{% url 'broyage:update_totali_1' t.slug %}" class="text-warning"><i class="fas fa-pen"></i></a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="3" class="text-muted">—</td>
+              <td>
+                {% if user.is_authenticated and section == "broyage" %}
+                  <a href="{% url 'broyage:ajout_totali_1' %}" class="text-success"><i class="fas fa-plus-circle"></i></a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endif %}
+
+          <!-- ⚙️ Bloc TOTALISEUR 2 -->
+           
+          {% if object_totali_2 %}
+            {% for o in object_totali_2 %}
+
+              <tr>
+                <td>{{ o.clinker_totaliseur_2|floatformat:0 }}</td>
+                <td>{{ o.gypse_totaliseur_2|floatformat:0 }}</td>
+                <td>{{ o.dolomite_totaliseur_2|floatformat:0 }}</td>
+                <td>
+                  {% if user.is_authenticated and section == "broyage" %}
+                    <a href="{% url 'broyage:update_totali_2' o.slug %}" class="text-warning"><i class="fas fa-pen"></i></a>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr class="table-secondary small">
+                <td>{{ o.dif_clinker|floatformat:0 }}</td>
+                <td>{{ o.dif_gypse|floatformat:0 }}</td>
+                <td>{{ o.dif_dolomite|floatformat:0 }}</td>
+                <td></td>
+              </tr>
+
+              <tr class="table-light fw-semibold">
+                <td colspan="4">🧮 Totaliseur : {{ o.compt_totaliseur_2|floatformat:0 }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="3">—</td>
+              <td>
+                {% for iteam in object_totali_1 %}
+                  {% if user.is_authenticated and section == "broyage" %}
+                    <a href="{% url 'broyage:ajout_totali_2' iteam.slug %}" class="text-success"><i class="fas fa-circle-plus"></i></a>
+                  {% endif %}
+                {% endfor %}
+              </td>
+            </tr>
+          {% endif %}
+
+          <!-- ⚡ Indicateurs Production -->
+          {% for prod in object_totaliseur_2 %}
+            {% if prod.totaliseur.post.post == poste %}
+              
+              <tr class="mt-3">
+                <td colspan="2" class="mb-1 fs-6">
+                  <strong>Prod :</strong>
+                </td>
+                <td>{{ prod.production }}</td>
+                <td>
+                  <span class="text-muted small">Ton</span>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" class="mb-1 fs-6">
+                  <strong>R :</strong>
+                </td>
+                <td>{{ prod.rendement }}</td>
+                <td>
+                  <span class="text-muted small">Ton/Hr</span>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" class="mb-1 fs-6">
+                  <strong>C.S :</strong>
+                </td>
+                <td>{{ prod.conso }}</td>
+                <td>
+                  <span class="text-muted small">KwH/T</span>
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- 🔧 Bouton panne -->
+      <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-bottom-4">
+        <div class="fw-bold text-{{ couleur }}">
+          {% for iteam in object_totaliseur_1 %}
+          ⏱️ TM : 
+            {% if iteam.post.post == poste %}
+              {{ iteam.temps_marche_formate }}
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div class="fw-bold text-{{ couleur }}">
+          {% for iteam in object_totali_1 %}
+            {% if iteam.post.post == poste %}
+              {{ iteam.user.last_name }}
+            {% endif %}
+          {% endfor %}
+        </div>
+          {% for o in object_totali_1 %}
+            {% if o.post.post == poste %}
+              {% if user.is_authenticated and section == "broyage" %}
+                <a href="{% url 'broyage:ajout_panne' o.slug %}" class="btn btn-outline-{{ couleur }} btn-sm rounded-pill shadow-sm">➕ Panne</a>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+

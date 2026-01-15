@@ -1,0 +1,75 @@
+<div class="row">
+  <div class="col-md-3">
+    <div class="card text-center bg-light">
+      <div class="card-body">
+        {% if packing %}
+        <h6 class="text-dark">Livraison</h6>
+        <p class="display-6 text-primary fs-3">
+          {{ total_livraison }} <span class="fs-5 fst-italic">T</span>
+        </p>
+        {% elif broyage %}
+        <h6 class="text-dark">Production</h6>
+        <p class="display-6 text-primary fs-3">
+          {{ total_production }} <span class="fs-5 fst-italic">T</span>
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if packing %}
+  <div class="col-md-3">
+    <div class="card text-center bg-light">
+      <div class="card-body">
+        <h6 class="text-dark">Casse</h6>
+        <p class="display-6 text-danger fs-3">
+          {{ total_casse }} <span class="fs-5 fst-italic">Sacs</span>
+        </p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="col-md-3">
+    <div class="card text-center bg-light">
+      <div class="card-body">
+        <h6 class="text-dark">Rendement</h6>
+        {% if packing %}
+        <p class="display-6 text-success fs-3">
+          {{ moyenne_rendement }} <span class="fs-5 fst-italic">T/H</span>
+        </p>
+        {% elif broyage%}
+        <p class="display-6 text-success fs-3">
+          {{ moyenne_rendement }} <span class="fs-5 fst-italic">T/H</span>
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if packing %}
+  <div class="col-md-3">
+    <div class="card text-center bg-light">
+      <div class="card-body">
+        <h6 class="text-dark">Taux_casse</h6>
+        <p class="display-6 text-info fs-3">
+          {{ moyenne_tx_casse }} <span class="fs-5 fst-italic">%</span>
+        </p>
+      </div>
+    </div>
+  </div>
+  {% elif broyage %}
+  <div class="col-md-3">
+    <div class="card text-center bg-light">
+      <div class="card-body">
+        <h6 class="text-dark">Consommation</h6>
+        <p class="display-6 text-info fs-3">
+          {{ moyenne_conso }} <span class="fs-5 fst-italic">%</span>
+        </p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<hr class="my-4" />

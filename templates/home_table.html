@@ -1,0 +1,790 @@
+
+
+<table class="table table-bordered border-black table-hover table-sm align-middle text-center mb-0">
+  <thead>
+    <tr>
+      <th colspan="17" class="py-2 text-uppercase bg-warning-subtle text-dark fs-4">indicateur de Production</th>
+    </tr>
+    <tr>
+      <th rowspan="2" colspan="3" class="text-dark fw-bolder bg-info-subtle">Atelier</th>
+      <th rowspan="2" class="text-dark fw-bolder bg-success-subtle">Objectif par post</th>
+      <th colspan="3" class="text-dark text-uppercase fw-bolder bg-warning-subtle">post a</th>
+      <th colspan="3" class="text-dark text-uppercase fw-bolder bg-warning-subtle">post b</th>
+      <th colspan="3" class="text-dark text-uppercase fw-bolder bg-warning-subtle">post c</th>
+      <th colspan="4" class="text-dark fst-italic fw-bolder bg-orange-100">Daily Production</th>
+    </tr>
+    <tr>
+      <!-- Post A -->
+      <th class="text-dark fw-bolder bg-info-subtle">Réalisé shift A</th>
+      <th class="text-dark fw-bolder bg-info-subtle">Heure de marche</th>
+      <th class="text-dark fw-bolder bg-info-subtle">Productivité</th>
+      <!-- Post B -->
+      <th class="text-dark fw-bolder bg-info-subtle">Réalisé shift B</th>
+      <th class="text-dark fw-bolder bg-info-subtle">Heure de marche</th>
+      <th class="text-dark fw-bolder bg-info-subtle">Productivité</th>
+      <!-- Post C -->
+      <th class="text-dark fw-bolder bg-info-subtle">Réalisé shift C</th>
+      <th class="text-dark fw-bolder bg-info-subtle">Heure de marche</th>
+      <th class="text-dark fw-bolder bg-info-subtle">Productivité</th>
+      <!-- Daily -->
+      <th class="text-dark text-capitalize fst-italic fw-bolder bg-success-subtle">daily target</th>
+      <th class="text-dark text-capitalize fst-italic fw-bolder bg-info-subtle">totaly per day</th>
+      <th class="text-dark text-capitalize fst-italic fw-bolder bg-info-subtle">hrs de marche</th>
+      <th class="text-dark text-capitalize fst-italic fw-bolder bg-info-subtle">Productivité</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr class="text-dark">
+      <td colspan="3" class="text-dark fw-bolder h5 bg-info-subtle heith">Ciment Mill</td>
+      <td class="text-dark fw-bolder fs-6 bg-success-subtle">206</td>
+
+      {% comment %}Post A{% endcomment %}
+      {% if object_broy_06h_14h or object_broy_06h_18h %}
+        {% for ob in object_broy %}
+          {% if ob.totaliseur.post.post == '06H-14H' or ob.totaliseur.post.post == '06H-18H' %}
+            <td class="bg-light fw-bolder fs-6 {% if ob.production|default:0 > 206 %}
+                text-success
+              {% else %}
+                text-danger
+              {% endif %}">
+              {% if ob.production %}
+                {{ ob.production }}
+              {% endif %}
+            </td>
+            <td class="text-dark bg-info-subtle fw-bolder fs-6">
+              {% if ob.temps_marche_formate %}
+                {{ ob.temps_marche_formate }}
+              {% endif %}
+            </td>
+            <td class="bg-info-subtle fw-bolder fs-6 {% if ob.rendement|default:0 > 40 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if ob.rendement %}
+                {{ ob.rendement }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark fw-bolder fs-6 bg-light"></td>
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle"></td>
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle"></td>
+      {% endif %}
+
+      {% comment %}Post B{% endcomment %}
+      {% if object_broy_14h_22h %}
+        {% for ob in object_broy %}
+          {% if ob.totaliseur.post.post == '14H-22H' %}
+            <td class="bg-light fw-bolder fs-6 {% if ob.production|default:0 > 206 %}
+                text-success
+              {% else %}
+                text-danger
+              {% endif %}">
+              {% if ob.production %}
+                {{ ob.production }}
+              {% endif %}
+            </td>
+            <td class="text-dark fw-bolder fs-6 bg-info-subtle">
+              {% if ob.temps_marche_formate %}
+                {{ ob.temps_marche_formate }}
+              {% endif %}
+            </td>
+            <td class="bg-info-subtle fw-bolder fs-6 {% if ob.rendement|default:0 > 40 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if ob.rendement %}
+                {{ ob.rendement }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark fw-bolder fs-6 bg-light"></td>
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle"></td>
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle"></td>
+      {% endif %}
+
+      {% comment %}Post C{% endcomment %}
+      {% if object_broy_22h_06h or object_broy_18h_06h %}
+        {% for ob in object_broy %}
+          {% if ob.totaliseur.post.post == '22H-06H' or ob.totaliseur.post.post == '18H-06H' %}
+            <td class="bg-light fw-bolder fs-6 {% if ob.production|default:0 > 206 %}
+                text-success
+              {% else %}
+                text-danger
+              {% endif %}">
+              {% if ob.production %}
+                {{ ob.production }}
+              {% endif %}
+            </td>
+            <td class="text-dark fw-bolder fs-6 bg-info-subtle">
+              {% if ob.temps_marche_formate %}
+                {{ ob.temps_marche_formate }}
+              {% endif %}
+            </td>
+            <td class="bg-info-subtle fw-bolder fs-6 {% if ob.rendement|default:0 > 40 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if ob.rendement %}
+                {{ ob.rendement }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark fw-bolder fs-6 bg-light"></td>
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle"></td>
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle"></td>
+      {% endif %}
+
+      <td class="text-dark bg-success-subtle"></td>
+      <td class="text-dark fw-bolder fs-5 bg-orange-100">
+        {% if production_total %}
+          {{ production_total }}
+        {% endif %}
+      </td>
+      <td class="text-dark fw-bolder fs-5 bg-orange-100">
+        {% if temps_marche_total_formate %}
+          {{ temps_marche_total_formate }}
+        {% endif %}
+      </td>
+      <td class="text-dark fw-bolder fs-5 bg-orange-100">
+        {% if rendement_moyenne %}
+          {{ rendement_moyenne }}
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <th class="text-dark fw-bolder bg-info-subtle wdth" colspan="2" rowspan="2">Ciment Mill</th>
+      <th class="text-dark fw-bolder bg-info-subtle" colspan="1">Consommation Energétique(MWh)</th>
+      <td class="text-dark fw-bolder bg-success-subtle">6.18</td>
+      {% comment %}Partie différence compteur broyeur{% endcomment %}
+      {% if object_broy_06h_14h or object_broy_06h_18h %}
+        {% for ob in object_broy %}
+          {% if ob.totaliseur.post.post == '06H-14H' or ob.totaliseur.post.post == '06H-18H' %}
+            <td class="text-dark fw-bolder fs-6 bg-light" colspan="3">{{ ob.dif_compt_value }}</td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-light" colspan="3"></td>
+      {% endif %}
+
+      {% if object_pack_14h_22h %}
+        {% for ob in object_broy %}
+          {% if ob.totaliseur.post.post == '14H-22H' %}
+            <td class="text-dark fw-bolder fs-6 bg-light" colspan="3">{{ ob.dif_compt_value }}</td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-light" colspan="3"></td>
+      {% endif %}
+
+      {% if object_broy_22h_06h or object_broy_18h_06h %}
+        {% for ob in object_broy %}
+          {% if ob.totaliseur.post.post == '22H-06H' or ob.totaliseur.post.post == '18H-06H' %}
+            <td class="text-dark fw-bolder fs-6 bg-light" colspan="3">{{ ob.dif_compt_value }}</td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-light" colspan="3"></td>
+      {% endif %}
+
+      <td class="text-dark bg-success-subtle" colspan="0">30.7</td>
+      <td class="text-dark fw-bolder fs-5 bg-orange-100" colspan="3">
+        {% if dif_compt_value_total %}
+          {{ dif_compt_value_total }}
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <th class="text-dark fw-bolder bg-info-subtle" colspan="1">SPC(KWh/T)</th>
+
+      <td class="text-dark fw-bolder bg-success-subtle">30</td>
+      {% if object_broy_06h_14h or object_broy_06h_18h %}
+        {% for ob in object_broy %}
+          {% if ob.totaliseur.post.post == '06H-14H' or ob.totaliseur.post.post == '06H-18H' %}
+            <td class="text-dark bg-info-subtle fw-bolder fs-6" colspan="3">
+              {% if ob.conso %}
+                {{ ob.conso }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder fs-6" colspan="3"></td>
+      {% endif %}
+
+      {% if object_broy_14h_22h %}
+        {% for ob in object_broy %}
+          {% if ob.totaliseur.post.post == '14H-22H' %}
+            <td class="text-dark bg-info-subtle fw-bolder fs-6" colspan="3">
+              {% if ob.conso %}
+                {{ ob.conso }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder fs-6" colspan="3"></td>
+      {% endif %}
+
+      {% if object_broy_22h_06h or object_broy_18h_06h %}
+        {% for ob in object_broy %}
+          {% if ob.totaliseur.post.post == '22H-06H' or ob.totaliseur.post.post == '18H-06H' %}
+            <td class="text-dark bg-info-subtle fw-bolder fs-6" colspan="3">
+              {% if ob.conso %}
+                {{ ob.conso }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder fs-6" colspan="3"></td>
+      {% endif %}
+
+      <td class="text-dark fw-bolder bg-success-subtle">18,54</td>
+      <td class="text-dark fw-bolder fs-5 bg-orange-100" colspan="3">
+        {% if conso_moyenne %}
+          {{ conso_moyenne }}
+        {% endif %}
+      </td>
+    </tr>
+
+    {% comment %}Partie packing{% endcomment %}
+    <tr>
+      <th class="text-dark fw-bolder text-capitalize bg-info-subtle" rowspan="4" colspan="2">cement dispach</th>
+      <th class="text-dark fw-bolder bg-info-subtle" colspan="1">Livraison(tonnes)</th>
+      <td class="text-dark fw-bolder bg-success-subtle">206</td>
+
+      {% comment %}Partie livraison et vrack{% endcomment %}
+      {% if object_pack_06h_14h or object_pack_06h_18h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '06H-14H' or object.post.post == '06H-18H' %}
+            <td class="bg-light fw-bolder fs-6 {% if object.livraison|default:0 > 206 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.livraison %}
+                {{ object.livraison|default:0 }}
+              {% endif %}
+            </td>
+            <td class="text-dark bg-light fw-bolder fs-6">
+              {% if object.vrack %}
+                {{ object.vrack }}
+              {% endif %}
+            </td>
+            <td class="bg-light fw-bolder fs-6 {% if object.som_liv_vrack|default:0 > 206 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.som_liv_vrack %}
+                {{ object.som_liv_vrack }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-light"></td>
+        <td class="text-dark bg-light"></td>
+        <td class="text-dark bg-light"></td>
+      {% endif %}
+
+      {% if object_pack_14h_22h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '14H-22H' %}
+            <td class="bg-light fw-bolder fs-6 {% if object.livraison|default:0 > 206 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.livraison %}
+                {{ object.livraison }}
+              {% endif %}
+            </td>
+            <td class="text-dark bg-light fw-bolder fs-6">
+              {% if object.vrack %}
+                {{ object.vrack }}
+              {% endif %}
+            </td>
+            <td class="bg-light fw-bolder fs-6 {% if object.som_liv_vrack|default:0 > 206 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.som_liv_vrack %}
+                {{ object.som_liv_vrack }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-light"></td>
+        <td class="text-dark bg-light"></td>
+        <td class="text-dark bg-light"></td>
+      {% endif %}
+
+      {% if object_pack_22h_06h or object_pack_18h_06h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '22H-06H' or object.post.post == '18H-06H' %}
+            <td class="bg-light fw-bolder fs-6 {% if object.livraison|default:0 > 206 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.livraison %}
+                {{ object.livraison }}
+              {% endif %}
+            </td>
+            <td class="text-dark bg-light fw-bolder fs-6">
+              {% if object.vrack %}
+                {{ object.vrack }}
+              {% endif %}
+            </td>
+            <td class="bg-light fw-bolder fs-6 {% if object.som_liv_vrack|default:0 > 206 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.som_liv_vrack %}
+                {{ object.som_liv_vrack }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-light"></td>
+        <td class="text-dark bg-light"></td>
+        <td class="text-dark bg-light"></td>
+      {% endif %}
+
+      <td class="text-dark fw-bolder bg-success-subtle">618</td>
+      <td class="fw-bolder fs-5 bg-orange-100 {% if livraison_total|default:0 > 618 %}
+          
+          text-success
+
+        {% else %}
+          
+          text-danger
+
+        {% endif %}">
+        {% if livraison_total %}
+          {{ livraison_total }}
+        {% endif %}
+      </td>
+      <td class="text-dark fw-bolder fs-5 bg-orange-100">
+        {% if total_vrack %}
+          {{ total_vrack }}
+        {% endif %}
+      </td>
+      <td class="fw-bolder fs-5 bg-orange-100 {% if total_sum_liv_vrack|default:0 > 618 %}
+          
+          text-success
+
+        {% else %}
+          
+          text-danger
+
+        {% endif %}">
+        {% if total_sum_liv_vrack %}
+          {{ total_sum_liv_vrack }}
+        {% endif %}
+      </td>
+    </tr>
+
+    {% comment %}Partie des sacs ensachés{% endcomment %}
+    <tr>
+      <th class="text-dark fw-bolder bg-info-subtle" colspan="1">Nombre de sacs livrés</th>
+      <th class="text-dark fw-bolder bg-success-subtle">4120</th>
+
+      {% if object_pack_06h_14h or object_pack_06h_18h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '06H-14H' or object.post.post == '06H-18H' %}
+            <td colspan="3" class="text-dark bg-light fw-bolder fs-6">
+              {% if object.ensache %}
+                {{ object.ensache }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td colspan="3" class="text-dark bg-light"></td>
+      {% endif %}
+
+      {% if object_pack_14h_22h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '14H-22H' %}
+            <td colspan="3" class="text-dark bg-light fw-bolder fs-6">
+              {% if object.ensache %}
+                {{ object.ensache }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td colspan="3" class="text-dark bg-light"></td>
+      {% endif %}
+
+      {% if object_pack_22h_06h or object_pack_18h_06h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '22H-06H' or object.post.post == '18H-06H' %}
+            <td colspan="3" class="text-dark bg-light fw-bolder fs-6">
+              {% if object.ensache %}
+                {{ object.ensache }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td colspan="3" class="text-dark bg-light"></td>
+      {% endif %}
+
+      <th class="text-dark fw-bolder bg-success-subtle">12360</th>
+      <td class="text-dark fs-5 fw-bolder bg-orange-100" colspan="3">
+        {% if total_ensache %}
+          {{ total_ensache }}
+        {% endif %}
+      </td>
+    </tr>
+
+    {% comment %}Partie casse{% endcomment %}
+    <tr>
+      <th class="text-dark fw-bolder bg-info-subtle" colspan="1">Nombre de sacs cassés</th>
+      <th class="text-dark fw-bolder bg-success-subtle">12</th>
+
+      {% if object_pack_06h_14h or object_pack_06h_18h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '06H-14H' or object.post.post == '06H-18H' %}
+            <td colspan="3"
+              class="fw-bolder fs-6 bg-light {% if object.casse|default:0 < 12 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.casse %}
+                {{ object.casse }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td colspan="3" class="text-dark bg-light"></td>
+      {% endif %}
+
+      {% if object_pack_14h_22h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '14H-22H' %}
+            <td colspan="3"
+              class="fw-bolder fs-6 bg-light {% if object.casse|default:0 < 12 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.casse %}
+                {{ object.casse }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td colspan="3" class="text-dark bg-light"></td>
+      {% endif %}
+
+      {% if object_pack_22h_06h or object_pack_18h_06h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '22H-06H' or object.post.post == '18H-06H' %}
+            <td colspan="3"
+              class="fw-bolder fs-6 bg-light {% if object.casse|default:0 < 12 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.casse %}
+                {{ object.casse }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td colspan="3" class="text-dark bg-light"></td>
+      {% endif %}
+
+      <th class="text-dark fw-bolder bg-success-subtle">37</th>
+      <td colspan="3"
+        class="fw-bolder fs-5 bg-orange-100 {% if total_casse|default:0 < 37 %}
+          
+          text-success
+
+        {% else %}
+          
+          text-danger
+        {% endif %}">
+        {% if total_casse %}
+          {{ total_casse }}
+        {% endif %}
+      </td>
+    </tr>
+
+    {% comment %}Partie taux de casse{% endcomment %}
+    <tr>
+      <th class="text-dark fw-bolder bg-info-subtle" colspan="1">Taux de casse</th>
+      <th class="text-dark fw-bolder bg-success-subtle">0.30%</th>
+      {% if object_pack_06h_14h or object_pack_06h_18h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '06H-14H' or object.post.post == '06H-18H' %}
+            <td colspan="3"
+              class="fw-bolder fs-6 bg-info-subtle {% if object.tx_cas|default:0 < 0.3 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.tx_cas %}
+                {{ object.tx_cas }}%
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td colspan="3" class="text-dark bg-info-subtle"></td>
+      {% endif %}
+
+      {% if object_pack_14h_22h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '14H-22H' %}
+            <td colspan="3"
+              class="fw-bolder fs-6 bg-info-subtle {% if object.tx_cas|default:0 < 0.3 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.tx_cas %}
+                {{ object.tx_cas }}%
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td colspan="3" class="text-dark bg-info-subtle"></td>
+      {% endif %}
+
+      {% if object_pack_22h_06h or object_pack_18h_06h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '22H-06H' or object.post.post == '18H-06H' %}
+            <td colspan="3"
+              class="fw-bolder fs-6 bg-info-subtle {% if object.tx_cas|default:0 < 0.3 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}">
+              {% if object.tx_cas %}
+                {{ object.tx_cas }}%
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td colspan="3" class="text-dark bg-info-subtle"></td>
+      {% endif %}
+
+      <th class="text-dark fw-bolder bg-success-subtle">0.30%</th>
+      <td class="fw-bolder fs-5 bg-orange-100 {% if total_tx_casse|default:0 < 0.3 %}
+          
+          text-success
+
+        {% else %}
+          
+          text-danger
+
+        {% endif %}"
+        colspan="3">
+        {% if total_tx_casse %}
+          {{ total_tx_casse }}%
+        {% endif %}
+      </td>
+    </tr>
+
+    {% comment %}Partie Rendement et Temps de marche{% endcomment %}
+    <tr>
+      <th colspan="2" class="text-dark fw-bolder bg-info-subtle">Temps de marche</th>
+      <th colspan="1" class="text-dark fw-bolder bg-info-subtle">Rendement de livraison(T/H)</th>
+      <th class="text-dark fw-bolder bg-success-subtle">45</th>
+
+      {% if object_pack_06h_14h or object_pack_06h_18h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '06H-14H' or object.post.post == '06H-18H' %}
+            <td class="text-dark fw-bolder fs-6 bg-info-subtle" colspan="2">
+              {% if object.temps_marche_formate %}
+                {{ object.temps_marche_formate }}
+              {% endif %}
+            </td>
+            <td class="fw-bolder fs-6 bg-info-subtle {% if object.rendement|default:0 > 45 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}"
+              colspan="1">
+              {% if object.rendement %}
+                {{ object.rendement }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle" colspan="2"></td>
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle" colspan="1"></td>
+      {% endif %}
+
+      {% if object_pack_14h_22h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '14H-22H' %}
+            <td class="text-dark fw-bolder fs-6 bg-info-subtle" colspan="2">
+              {% if object.temps_marche_formate %}
+                {{ object.temps_marche_formate }}
+              {% endif %}
+            </td>
+            <td class="fw-bolder fs-6 bg-info-subtle {% if object.rendement|default:0 > 45 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}"
+              colspan="1">
+              {% if object.rendement %}
+                {{ object.rendement }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle" colspan="2"></td>
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle" colspan="1"></td>
+      {% endif %}
+
+      {% if object_pack_22h_06h or object_pack_18h_06h %}
+        {% for object in object_pack %}
+          {% if object.post.post == '22H-06H' or object.post.post == '18H-06H' %}
+            <td class="text-dark fw-bolder fs-6 bg-info-subtle" colspan="2">
+              {% if object.temps_marche_formate %}
+                {{ object.temps_marche_formate }}
+              {% endif %}
+            </td>
+            <td class="fw-bolder fs-6 bg-info-subtle {% if object.rendement|default:0 > 45 %}
+                
+                text-success
+
+              {% else %}
+                
+                text-danger
+
+              {% endif %}"
+              colspan="1">
+              {% if object.rendement %}
+                {{ object.rendement }}
+              {% endif %}
+            </td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle" colspan="2"></td>
+        <td class="text-dark fw-bolder fs-6 bg-info-subtle" colspan="1"></td>
+      {% endif %}
+      <td class="text-dark fw-bolder bg-success-subtle">45</td>
+      <td class="text-dark fw-bolder fs-5 bg-orange-100" colspan="2">
+        {% if temps_marche_total_format %}
+          {{ temps_marche_total_format }}
+        {% endif %}
+      </td>
+      <td class="fw-bolder fs-5 bg-orange-100 {% if total_rendement|default:0 > 45 %}
+          
+          text-success
+
+        {% else %}
+          
+          text-danger
+
+        {% endif %}"
+        colspan="1">
+        {% if total_rendement %}
+          {{ total_rendement }}
+        {% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>

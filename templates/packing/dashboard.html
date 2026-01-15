@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container mt-4">
+    <h2 class="mb-4">📊 Dashboard Packing — {{ request.user.profil.site }}</h2>
+
+    {% include 'dashboard_head.html' %}
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <h4>Détails par ans</h4>
+  </div>
+
+  <canvas id="packingChart"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+const labels = {{ labels|safe }};
+const livraison = {{ livraison|safe }};
+const casse = {{ casse|safe }};
+const txCasse = {{ tx_casse|safe }};
+const rendement = {{ rendement|safe }};
+const tempArret = {{ temp_arret|safe }};
+
+var ctx = document.getElementById('packingChart').getContext('2d');
+var chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            { label: 'Livraison (T)', data: livraison, borderColor: 'blue', fill: false },
+            { label: 'Casse (T)', data: casse, borderColor: 'red', fill: false },
+            { label: 'Taux de casse (%)', data: txCasse, borderColor: 'green', fill: false, yAxisID: 'y2' },
+            { label: 'Rendement (T/H)', data: rendement, borderColor: 'purple', fill: false },
+            { label: 'Temps de arrêt (H)', data: tempArret, borderColor: 'orange', fill: false },
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                ticks: { callback: v => v.toFixed(2) }
+            },
+            y2: {
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                ticks: { callback: v => v.toFixed(2) + " %" }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

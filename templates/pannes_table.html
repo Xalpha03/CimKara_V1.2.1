@@ -1,0 +1,162 @@
+<div class="card shadow-lg border-0 rounded-4 mt-5 overflow-hidden">
+  <!-- En-tête stylisée -->
+  {% comment %} <p>{{ user_detail.username }}</p> {% endcomment %}
+  <div class="card-header text-white text-center fw-bold fs-5 py-3" style="background: linear-gradient(90deg, #212529 0%, #0d6efd 60%, #6610f2 100%); letter-spacing: 1px; text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.25);">
+    ⚙️ Tableau des Pannes – <span class="fw-light">Suivi quotidien</span>
+  </div>
+
+  <!-- Tableau principal -->
+  <div class="card-body p-0 table-responsive">
+    <table class="table table-hover table-bordered table-sm align-middle text-center mb-0">
+      <!-- En-tête du tableau -->
+      <thead class="table-primary text-uppercase small">
+        <tr>
+          <th rowspan="2" class="fs-6 align-middle">#</th>
+          {% if role == 'admin' %}
+            <th rowspan="2" class="fs-6 align-middle">🧑‍💼 user</th>
+          {% endif %}
+          <th rowspan="2" class="fs-6 align-middle">🕒 Poste</th>
+          <th colspan="3" class="fs-6 align-middle">🔧 Temps de Panne</th>
+          <th rowspan="2" class="fs-6 align-middle">🏭 Département</th>
+          <th rowspan="2" class="fs-6 align-middle">📝 Cause</th>
+          <th rowspan="2" class="fs-6 align-middle">🛠 Action</th>
+
+          {% if user.is_authenticated %}
+            {% if packing_panne and section == 'packing' %}
+              <th rowspan="2" class="fs-6 align-middle">🛠 Update</th>
+            {% elif broyage_panne and section == 'broyage' %}
+              <th rowspan="2" class="fs-6 align-middle">🛠 Update</th>
+            {% endif %}
+          {% endif %}
+            
+        </tr>
+        <tr class="table-light">
+          <th class="fs-6">Début</th>
+          <th class="fs-6">Fin</th>
+          <th class="fs-6">Durée</th>
+        </tr>
+      </thead>
+
+      <!-- Corps du tableau -->
+      <tbody>
+        {% if object_pannes %}
+          {% for panne in object_pannes %}
+            <tr class="align-middle {% if panne.duree|default:0 > 60 %}
+                
+                table-danger
+
+              {% elif panne.duree|default:0 > 30 %}
+                
+                table-warning
+
+              {% else %}
+                
+                 table-light
+
+              {% endif %}">
+              <td class="fw-bold">{{ forloop.counter }}</td>
+
+              {% if role == 'admin' %}
+                {% if packing_panne %}
+                  <td class="fw-bold text-primary text-uppercase">{{ panne.packing.user.username }}</td>
+                {% elif broyage_panne %}
+                  <td class="fw-bold text-primary text-uppercase">{{ panne.broyage.user.username }}</td>
+                {% endif %}
+              {% endif %}
+
+              <td class="fw-semibold text-primary">
+                {% if broyage_panne %}
+                  {{ panne.broyage.make_title }}
+                {% elif packing_panne %}
+                  {{ panne.packing.title }}
+                {% endif %}
+              </td>
+              <td>{{ panne.start_panne|date:'H:i' }}</td>
+              <td>{{ panne.end_panne|date:'H:i' }}</td>
+
+              <td class="fw-bold">
+                <span 
+                class="badge rounded-pill bg-{% if panne.duree|default:0 > 60 %}danger{% elif panne.duree|default:0 > 30 %}{% else %}success{% endif %}">
+                  {{ panne.duree_formatee|default:'—' }}
+                </span>
+              </td>
+
+              <td>
+                <span  
+                class="badge rounded-pill bg-{% if panne.departement == 'MEC' %}danger{% elif panne.departement == 'ELECT' %}warning{% else %}secondary{% endif %}">
+                  {{ panne.departement }}
+                </span>
+              </td>
+
+              <td class="text-start text-dark px-3">{{ panne.description|truncatechars:550|default:'—' }}</td>
+              {% if panne.solution %}
+                <td class="text-start text-dark px-3">{{ panne.solution|truncatechars:550|default:'—' }}</td>
+              {% else %}
+                <td class="text-start text-dark px-3"></td>
+              {% endif %}
+
+              {% if user.is_authenticated %}
+                {% if packing_panne and section == 'packing' %}
+                  <td><a href="{% url 'packing:update_packing_panne' panne.slug %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">✏️</a></td>
+                {% elif broyage_panne and section == 'broyage' %}
+                <td><a href="{% url 'broyage:update_panne' panne.slug %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">✏️</a></td>
+                {% endif %}
+              {% endif %}
+
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            {% if not object_pannes %}
+              <td colspan="9" class="text-center text-muted py-4 fst-italic">🌟 Aucune panne enregistrée pour cette date.</td>
+            {% endif %}
+          </tr>
+        {% endif %}
+      </tbody>
+
+      <!-- Ligne du total -->
+      {% if object_pannes %}
+        <tfoot class="text-white fw-bold" style="background: linear-gradient(90deg, #198754, #20c997); letter-spacing: 0.5px;">
+          <tr>
+            <td colspan="4" class="text-end pe-3 border-0 fs-6">🌟 Total Temps d’Arrêt :</td>
+            <td colspan="6" class="text-start ps-3 border-0 fs-5 text-center">{{ total_temps_arret_formate }}</td>
+          </tr>
+        </tfoot>
+      {% endif %}
+    </table>
+  </div>
+</div>
+
+<!-- Styles additionnels -->
+<style>
+  /* Effet au survol des lignes */
+  .table-hover tbody tr:hover {
+    background-color: #f3f6fa !important;
+    transform: scale(1.01);
+    transition: all 0.25s ease-in-out;
+  }
+  
+  /* Badges compacts et lisibles */
+  .badge {
+    font-size: 0.8rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Lignes plus confortables */
+  table td,
+  table th {
+    vertical-align: middle !important;
+    padding: 0.6rem !important;
+  }
+  
+  /* Effet de survol subtil de la carte */
+  .card {
+    border-radius: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  }
+</style>

@@ -1,0 +1,409 @@
+class homeView(ListView):
+    model = Packing
+    template_name = 'home-page.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return redirect('account:login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        
+    
+        context.update(self.context_packing())
+        context.update(self.context_broyage())
+        return context
+
+    def context_packing(self):
+
+        user = self.request.user
+        site = user.profil.site
+        section = 'packing'
+        search_date = self.request.GET.get('search')
+
+        filters_pack = Q(site=site)
+        filters_pann = Q(site=site, section=section)
+
+        broyage_existe = Broyage.objects.filter(date=date.today(), site=site)
+        packing_existe = Packing.objects.filter(date=date.today(), site=site) 
+
+        print('broyage_existe : ', broyage_existe.exists())
+        print('packing_existe : ', packing_existe.exists()) 
+
+        if search_date:
+            try:
+                search_date = datetime.strptime(search_date, '%d/%m/%Y').date()
+                filters_pack &= Q(date=search_date)
+                filters_pann &= Q(date=search_date)
+            except ValueError:
+                filters_pack &= Q(pk__isnull=True)
+                filters_pann &= Q(pk__isnull=True)
+
+        else:
+            if packing_existe.exists():
+                search_date = date.today()
+                filters_pack &= Q(date=search_date)
+                filters_pann &= Q(date=search_date)
+
+            elif broyage_existe.exists():
+                search_date = date.today()
+                filters_pack &= Q(date=search_date)
+                filters_pann &= Q(date=search_date)
+
+            else:
+                search_date = Packing.objects.order_by(
+                    '-date').values_list('date', flat=True).first()
+                filters_pack &= Q(date=search_date)
+                filters_pann &= Q(date=search_date)
+
+        object_pack = Packing.objects.filter(filters_pack)
+        object_pann = Pannes.objects.filter(filters_pann)
+        nbr_objet = object_pack.count()
+
+        toat_som_liv_vrack = Decimal()
+        total_ens = int()
+        moyenne_rend = int()
+        moyenne_tx_cas = int()
+        total_temp_march = Decimal()
+        total_liv = int()
+        total_cas = int()
+        total_vrack = Decimal()
+        toat_som_liv_vrack = Decimal()
+
+        temp_arret = Decimal()
+        for obj in object_pann:
+            temp_arret = object_pann.aggregate(total=Sum('duree'))[
+                'total'] or timedelta()
+            obj.temp_arret = (Decimal(temp_arret.total_seconds(
+            ))/Decimal(3600)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+        for obj in object_pack:
+            temp_arret = object_pann.filter(packing=obj).aggregate(
+                total=Sum('duree'))['total'] or timedelta()
+
+            # Calcul de somme de la livraison et vrack
+            som_liv_vrack = obj.livraison + obj.vrack
+            obj.som_liv_vrack = som_liv_vrack
+
+            ens = obj.livraison*20
+            obj.ens = ens
+
+            # Calcul de tau de casse
+            tx_cas = Decimal(obj.casse*100)/Decimal(obj.ens -
+                                                    obj.casse) if obj.casse else Decimal(0)
+            obj.tx_cas = tx_cas.quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+            # Calcul de temp_marche
+            temp_march = obj.post.duree_post - temp_arret
+            obj.temp_march = Decimal(temp_march.total_seconds(
+            )/3600).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+
+            # Calcul de rendement
+            rend = Decimal(obj.livraison/(temp_march.total_seconds()/3600)
+                           ) if obj.livraison and temp_march else Decimal(0)
+            obj.rend = rend.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+            # Calcul de la livraison total
+            total_liv = object_pack.aggregate(total=Sum('livraison'))[
+                'total'] or int(0)
+            total_cas = object_pack.aggregate(total=Sum('casse'))[
+                'total'] or int(0)
+            total_vrack = object_pack.aggregate(total=Sum('vrack'))[
+                'total'] or Decimal(0)
+            total_vrack = total_vrack.quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP)
+            toat_som_liv_vrack = total_liv + total_vrack
+
+            # Calcul de la moyenne de taux de casse
+            moyenne_tx_cas = Decimal(
+                total_cas*100)/Decimal((total_liv*20)-total_cas) if total_cas else Decimal(0)
+            moyenne_tx_cas = moyenne_tx_cas.quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+            # Calcul de temps marche total
+            total_temp_march += Decimal(temp_march.total_seconds()/3600)
+
+            # Calcul de la mpyenne du rendement
+            moyenne_rend = Decimal(
+                total_liv)/total_temp_march if total_liv and total_temp_march else Decimal(0)
+            moyenne_rend = moyenne_rend.quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+            total_temp_march = total_temp_march.quantize(
+                Decimal('0.1'), rounding=ROUND_HALF_UP)
+
+        return {
+            'search_date': search_date,
+            'object_pack': object_pack,
+            'object_pann': object_pann.order_by('packing__post'),
+
+            'object_post_06h': object_pack.filter(post__post='06H-14H'),
+            'object_post_14h': object_pack.filter(post__post='14H-22H'),
+            'object_post_22h': object_pack.filter(post__post='22H-06H'),
+
+            'object_post_06_18h': object_pack.filter(post__post='06H-18H'),
+            'object_post_18_06h': object_pack.filter(post__post='18H-06H'),
+
+            'total_liv': total_liv,
+            'total_ens': total_ens,
+            'total_cas': total_cas,
+            'total_rend': moyenne_rend,
+            'total_tx_cas': moyenne_tx_cas,
+            'total_vrack': total_vrack,
+            'total_temp_march': total_temp_march,
+            'toat_som_liv_vrack': toat_som_liv_vrack,
+            'toat_som_liv_vrack': toat_som_liv_vrack,
+        }
+
+    def context_broyage(self):
+        user = self.request.user
+        site = user.profil.site
+        section = 'broyage'
+        search_date = self.request.GET.get('search')
+
+        filters_broy = Q(site=site)
+        filters_pann = Q(site=site, section=section)
+
+        broyage_existe = Broyage.objects.filter(date=date.today(), site=site)
+        packing_existe = Packing.objects.filter(date=date.today(), site=site)
+        
+        print('broyage_existe : ', broyage_existe.exists())
+        print('packing_existe : ', packing_existe.exists())
+
+        if search_date:
+            try:
+                search_date = datetime.strptime(search_date, '%d/%m/%Y').date()
+                filters_broy &= Q(date=search_date)
+                filters_pann &= Q(date=search_date)
+            except ValueError:
+                filters_broy &= Q(pk__isnull=True)
+                filters_pann &= Q(pk__isnull=True)
+
+        else:
+            if broyage_existe.exists():
+                search_date = date.today()
+                filters_broy &= Q(date=search_date)
+                filters_pann &= Q(date=search_date)
+
+            elif packing_existe.exists():
+                search_date = Packing.objects.order_by(
+                    '-date').values_list('date', flat=True).first()
+                print('search_date : ', search_date)
+                filters_broy &= Q(date=search_date)
+                filters_pann &= Q(date=search_date)
+
+            else:
+                search_date = Broyage.objects.order_by(
+                    '-date').values_list('date', flat=True).first()
+                filters_broy &= Q(date=search_date)
+                filters_pann &= Q(date=search_date)
+
+        object_broy = Broyage.objects.filter(filters_broy)
+        object_panne = Pannes.objects.filter(filters_pann)
+        nbr_objet = object_broy.count()
+
+        total_compt = Decimal()
+        total_prod = Decimal()
+        moyenne_rend = Decimal()
+        total_temp_march = Decimal()
+        moyenne_conso = Decimal()
+        _total_temp_march = Decimal()
+        _total_compt = Decimal()
+
+        temp_arret = Decimal()
+        for obj in object_panne:
+            temp_arret = object_panne.aggregate(total=Sum('duree'))[
+                'total'] or timedelta()
+            obj.temp_arret = (Decimal(temp_arret.total_seconds(
+            ))/Decimal(3600)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+        for obj in object_broy:
+
+            temp_arret = object_panne.filter(broyage=obj).aggregate(
+                total=Sum('duree'))['total'] or timedelta()
+
+            # Calcul de production par post
+            prod = obj.dif_clinker + obj.dif_gypse + obj.dif_dolomite
+            obj.prod = prod.quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+
+            # Calcul de temps de marche par post
+            temp_march = obj.post.duree_post-temp_arret
+            obj.temp_march = Decimal(temp_march.total_seconds(
+            )/3600).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+
+            # Calcul du rendement par post
+            rend = Decimal(prod)/Decimal(temp_march.total_seconds() /
+                                         3600) if prod and temp_march else Decimal(0)
+            obj.rend = rend.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+            # Calcul de consomation spécifique par post
+            conso = Decimal(obj.dif_compt) / \
+                Decimal(prod) if obj.dif_compt and prod else Decimal(0)
+            obj.conso = conso.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+            # Calcul de la production total journalière
+            total_prod += obj.prod
+
+            # Calcul du temps de marche total journalier
+            _total_temp_march += Decimal(temp_march.total_seconds()/3600)
+            total_temp_march = _total_temp_march.quantize(
+                Decimal('0.1'), rounding=ROUND_HALF_UP)
+
+            # Calcul de la moyenne du rendememnt journalier
+            moyenne_rend = Decimal(
+                total_prod)/Decimal(_total_temp_march) if total_prod and _total_temp_march else Decimal(0)
+            moyenne_rend = moyenne_rend.quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+            # Calcul de la moyenne de la consommation spécifique
+            _total_compt += obj.dif_compt
+            moyenne_conso = Decimal(
+                _total_compt)/Decimal(total_prod) if _total_compt and total_prod else Decimal(0)
+            moyenne_conso = moyenne_conso.quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+            # Conversion du compteur broyeur
+            dif_compt = Decimal(obj.dif_compt/1000)
+            obj.dif_compt = dif_compt.quantize(
+                Decimal('0.1'), rounding=ROUND_HALF_UP)
+
+            # Conversion du compteur broyeur global
+            total_compt = Decimal(
+                _total_compt/1000).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+
+            print(total_compt)
+
+        return {
+
+            'object_broy': object_broy,
+            'object_panne': object_panne.order_by('broyage__post'),
+
+            'object_broy_post_06h': object_broy.filter(post__post='06H-14H'),
+            'object_broy_post_14h': object_broy.filter(post__post='14H-22H'),
+            'object_broy_post_22h': object_broy.filter(post__post='22H-06H'),
+
+            'object_broy_post_06_18h': object_broy.filter(post__post='06H-18H'),
+            'object_broy_post_18_06h': object_broy.filter(post__post='18H-06H'),
+
+            'total_compt': total_compt,
+            'total_prod': total_prod,
+            'total_temp_march_b': total_temp_march,
+            'moyenne_rend_b': moyenne_rend,
+            'moyenne_conso': moyenne_conso
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if search_date is not None:
+            try:
+                search_date = datetime.strptime(search_date, '%d/%m/%Y').date()
+            except ValueError:
+                filter_totali_2 &= Q(pk__isnull=True)
+                filter_pann &= Q(pk__isnull=True)
+        # else:
+        #     existe = Totaliseur_2.objects.filter(totaliseur__date=date.today(), totaliseur__site=site).exists()
+            
+        #     if existe:
+        #         # search_date = date.today()
+        #         pass
+        #     else:
+        #         # last_packing = Packing.objects.aggregate(Max('date'))['date__max']
+        #         # last_broyage = Totaliseur_2.objects.aggregate(Max('totaliseur__date'))['totaliseur__date__max']
+                
+        #         # if last_packing and last_broyage:
+        #         #     search_date = max(last_broyage, last_packing) 
+                    
+        #         # else:
+        #         #     search_date = None     
+        #         pass              
+
+           
+        filter_totali_2 &= Q(totaliseur__date=search_date)
+        filter_pann &= Q(broyage__date=search_date)
+        
+        t2 = Totaliseur_2.objects.filter(filter_totali_2)
+        object_pannes = Pannes.objects.filter(filter_pann)
+        print(object_pannes.exists())
+        for p in object_pannes:
+            print(p.broyage, '===>', p.packing)
+        
+        production_total = int()
+        temps_marche_total = timedelta()
+        temps_marche_total_formate = str()
+        rendement_moyenne = Decimal()
+        dif_compt_total = Decimal()
+        conso_moyenne = Decimal()
+        dif_compt_value_total = Decimal()
+        for t in t2:
+            temps_arret = object_pannes.filter(broyage=t.totaliseur).aggregate(total=Sum('duree'))['total'] or timedelta()
+            temps_marche = t.totaliseur.post.duree_post - temps_arret
+            
+            production = sum((t.dif_clinker, t.dif_gypse, t.dif_dolomite))
+            temps_marche_formate = get_date_formate(temps_marche)
+            rendement =Decimal(production)/Decimal(temps_marche.total_seconds()/3600)
+            rendement = rendement.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            conso = Decimal(t.dif_compt/production).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            dif_compt_value = Decimal(t.dif_compt/1000).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+            
+            setattr(t, 'conso', conso)
+            setattr(t, 'dif_compt_value', dif_compt_value)
+            setattr(t, 'production', int(production))
+            setattr(t, 'rendement', rendement)
+            setattr(t, 'temps_marche_formate', temps_marche_formate)
+             
+            production_total += production
+            temps_marche_total += temps_marche
+            temps_marche_total_formate = get_date_formate(temps_marche_total)
+            rendement_moyenne = Decimal(production_total)/Decimal(temps_marche_total.total_seconds()/3600)
+            rendement_moyenne = rendement_moyenne.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+            dif_compt_total += t.dif_compt
+            conso_moyenne = Decimal(dif_compt_total/production_total).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+            dif_compt_value_total = Decimal(dif_compt_total/1000).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+            
+            print(conso_moyenne)
+                
+        
+        
+        return{
+            'object_pannes': object_pannes,
+            'object_broy': t2,
+            'conso_moyenne': conso_moyenne,
+            'rendement_moyenne': rendement_moyenne,
+            'production_total': int(production_total),
+            'temps_marche_total': temps_marche_total,
+            'dif_compt_value_total': dif_compt_value_total,
+            'temps_marche_total_formate': temps_marche_total_formate,
+            
+            'object_broy_06h_14h': t2.filter(totaliseur__post__post='06H-14H'),
+            'object_broy_14h_22h': t2.filter(totaliseur__post__post='14H-22H'),
+            'object_broy_22h_06h': t2.filter(totaliseur__post__post='22H-06H'),
+            
+            'object_broy_06h_18h': t2.filter(totaliseur__post__post='06H-18H'),
+            'object_broy_18h_06h': t2.filter(totaliseur__post__post='18H-06H'),
+           
+        }

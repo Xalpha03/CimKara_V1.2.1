@@ -1,0 +1,37 @@
+if search:
+            keywords = [kw.strip() for kw in search.split(',') if kw.strip()]
+            print(keywords)
+            for kw in keywords:             
+                print(kw)
+                try:
+                    search_date = datetime.strptime(kw, '%d/%m/%Y').date()
+                    filter_broy &= Q(date=search_date) 
+                    filter_pann &= Q(date=search_date)
+                except:
+                    pass
+                
+                
+                
+                if len(kw) == 2 and 1 <= int(kw) <= 12:
+                    search_date = int(kw)
+                    if true:
+                        filter_broy &= Q(date__month=search_date, date__year=date.today().year)
+                        filter_pann &= Q(date__month=search_date, date__year=date.today().year)
+                    else:
+                        filter_broy &= Q(date__month=search_date)
+                        filter_pann &= Q(date__month=search_date)
+                        continue
+                elif len(kw) == 4:
+                    search_date = int(kw)
+                    filter_broy &= Q(date__year=int(kw))
+                    filter_pann &= Q(date__year=int(kw))
+                else:
+                    filter_broy &= Q(pk__isnull=True)
+        else:
+            if existe:
+                filter_broy &= Q(date__month=date.today().month, date__year=date.today().year)
+                filter_pann &= Q(date__month=date.today().month, date__year=date.today().year)
+                
+            else:
+                filter_broy &= Q(date__month=get_operational_month())
+                filter_pann &= Q(date__month=get_operational_month())

@@ -1,0 +1,81 @@
+<table>
+  <tbody>
+    <tr>
+      <th colspan="2">Date</th>
+      <td colspan="4">{{ search_date }}</td>
+    </tr>
+    <tr>
+      <th colspan="2" rowspan="2">Vente CPJ35</th>
+      <th>Livraison</th>
+      <th>Casse</th>
+      <th>Rendemnt</th>
+      <th>Vrack</th>
+    </tr>
+    <tr>
+      <td>{{ livraison_total }}</td>
+      <td>{{ total_casse }}</td>
+      <td>{{ total_rendement }}</td>
+      <td>{{ total_vrack }}</td>
+    </tr>
+    <tr>
+      <th colspan="2">Production</th>
+      <td colspan="4">{{ production_total }}</td>
+    </tr>
+    <tr>
+      <th colspan="2">Rendement</th>
+      <td colspan="4">{{ rendement_moyenne }}</td>
+    </tr>
+    <tr>
+      <th colspan="2">Consommation</th>
+      <td colspan="4">{{ conso_moyenne }}</td>
+    </tr>
+    <tr>
+      <th colspan="2">Camions dolomite reçus</th>
+      <td colspan="4"></td>
+    </tr>
+    <tr>
+      <th rowspan="2">Camions dolomite reçus</th>
+      <th>Reçus</th>
+      <td colspan="4"></td>
+    </tr>
+    <tr>
+      <th>Au parking</th>
+      <td colspan="4"></td>
+    </tr>
+    <tr>
+      <th colspan="2">Silos</th>
+      <th>Silo 1</th>
+
+      <td>{{ silo_1 }}</td>
+
+      <th>Silo 2</th>
+      <td>{{ silo_2 }}</td>
+    </tr>
+    <tr>
+      <th colspan="2">Bons en attent</th>
+      <td colspan="4"></td>
+    </tr>
+  </tbody>
+</table>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th,
+  td {
+    border: 1px solid #333;
+    padding: 6px;
+    text-align: center;
+    font-size: 20px;
+  }
+  th {
+    background-color: #eee;
+  }
+</style>

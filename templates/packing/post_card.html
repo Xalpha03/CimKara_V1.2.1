@@ -1,0 +1,122 @@
+<div class="
+{% if poste == '06H-18H' or poste == '18H-06H' %}
+    
+    
+    
+    
+    
+    
+    
+    
+ col-md-6
+
+
+
+
+
+
+
+
+  {% elif poste == '06H-14H' or poste == '14H-22H' or poste == '22H-06H' %}
+    
+    
+    
+    
+    
+    
+    
+    
+ col-md-4
+
+
+
+
+
+
+
+
+  {% endif %}">
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 hover-shadow">
+    <div class="card-header bg-{{ couleur }} text-white fs-5 fw-bold">
+      <div class="d-flex justify-content-between">
+        <a href="" class="text-white text-decoration-none">🕒{{ horaire }}</a>
+
+        {% if user.is_authenticated and section == 'packing' %}
+          {% if object_post %}
+            {% for ob in object_post %}
+              {% if ob.post.post == poste %}
+                <a href="{% url 'packing:update_packing' ob.slug %}" class="text-white"><i class="fas fa-pen"></i></a>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <a href="{% url 'packing:ajout_packing' %}"><i class="fas fa-plus-circle text-white"></i></a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    <div class="card-body table-responsive p-0">
+      <table class="table table-bordered table-sm mb-0 align-middle text-center">
+        <tbody class="fs-6">
+          {% for obj in object_pack %}
+            {% if obj.post.post == poste %}
+              <tr>
+                <td colspan="2" class="fw-bold text-start">🚛 Livraison</td>
+                <td>{{ obj.livraison|default:'—' }}</td>
+                <td class="fst-italic text-muted">Ton</td>
+              </tr>
+              <tr>
+                <td colspan="2" class="fw-bold text-start">🧱 Casses</td>
+                <td>{{ obj.casse|default:'—' }}</td>
+                <td class="fst-italic text-muted">Sacs</td>
+              </tr>
+              <tr>
+                <td colspan="2" class="fw-bold text-start">📦 Ensachés</td>
+                <td>{{ obj.ens|default:'—' }}</td>
+                <td class="fst-italic text-muted">Sacs</td>
+              </tr>
+              <tr>
+                <td colspan="2" class="fw-bold text-start">📉 Taux de casse</td>
+                <td>{{ obj.tx_cas|default:'—' }}</td>
+                <td class="fst-italic text-muted">%</td>
+              </tr>
+              <tr>
+                <td colspan="2" class="fw-bold text-start">🧺 Vrac</td>
+                <td>{{ obj.vrack|default:'—' }}</td>
+                <td class="fst-italic text-muted">Ton</td>
+              </tr>
+              <tr>
+                <td colspan="2" class="fw-bold text-start">⚙️ Rendement</td>
+                <td>{{ obj.rend|default:'—' }}</td>
+                <td class="fst-italic text-muted">T/Hr</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-bottom-4">
+        <div class="fw-bold text-{{ couleur }}">
+          {% for iteam in object_pack %}
+            {% if iteam.post.post == poste %}
+              ⏱️ TM : {{ iteam.temps_marche_formate }}
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div class="fw-bold text-{{ couleur }}">
+          {% for iteam in object_pack %}
+            {% if iteam.post.post == poste %}
+              {{ iteam.user.last_name }}
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% for p in object_pack %}
+          {% if p.post.post == poste %}
+            {% if user.is_authenticated and section == 'packing' %}
+              <a class="btn btn-outline-{{ couleur }} btn-sm rounded-pill shadow-sm" href="{% url 'packing:ajout_packing_panne' p.slug %}">➕ Ajouter panne</a>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>

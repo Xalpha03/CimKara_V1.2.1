@@ -1,0 +1,70 @@
+<div>
+  <table class="table table-bordered border-black table-hover table-sm text-center align-middle mb-0">
+    <tbody>
+      {% comment %}la partie des arrêt de broyage{% endcomment %}
+      <tr>
+        <th class="bg-info-subtle text-dark fs-3" colspan="7">Arrêts au Broyage</th>
+      </tr>
+      <tr>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Shift</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Dédut Arrêt</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Fin Arrêt</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Durée</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">DEPT</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Descrition Arrêt</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Solutions Apportées</th>
+      </tr>
+      {% for object in object_pannes %}
+        <tr>
+          <td class="text-dark bg-violet fw-bold fs-5">{{ object.broyage.post }}</td>
+          <td class="text-dark bg-light fw-bold fs-6">{{ object.start_panne }}</td>
+          <td class="text-dark bg-light fw-bold fs-6">{{ object.end_panne }}</td>
+          <td class="text-dark bg-violet fw-bold fs-6">{{ object.duree_formatee }}</td>
+          <td class="text-dark bg-light fw-bold fs-6">{{ object.departement }}</td>
+          <td class="text-dark bg-light fw-bold fs-6">{{ object.description }}</td>
+          <td class="text-dark bg-light fw-bold fs-6">{{ object.solution|default:'' }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7" class="fst-italic text-muted">Aucune panne enregistrée pour cette journée.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+<div class="mt-2">
+  <table class="table table-bordered border-black table-hover table-sm text-center align-middle mb-0">
+    <tbody>
+      {% comment %}la partie des arrêt de packing{% endcomment %}
+      <tr>
+        <th class="bg-info-subtle text-dark fs-3" colspan="7">Arrêts à l'Ensachage</th>
+      </tr>
+      <tr>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Shift</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Dédut Arrêt</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Fin Arrêt</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Durée</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">DEPT</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Descrition Arrêt</th>
+        <th class="bg-info-subtle fs-5 fw-bold text-dark">Solutions Apportées</th>
+      </tr>
+      {% for object in object_pann %}
+        <tr>
+          <td class="text-dark bg-violet fw-bold fs-5">{{ object.packing.post }}</td>
+          <td class="text-dark bg-light fw-bold fs-6">{{ object.start_panne }}</td>
+          <td class="text-dark bg-light fw-bold fs-6">{{ object.end_panne }}</td>
+          <td class="text-dark bg-violet fw-bold fs-6">{{ object.duree_formatee }}</td>
+          <td class="text-dark bg-light fw-bold fs-6">{{ object.departement }}</td>
+          <td class="text-dark bg-light fw-bold fs-6">{{ object.description }}</td>
+          <td class="text-dark bg-light fw-bold fs-6">{{ object.solution|default:'' }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7" class="fst-italic text-muted">Aucune panne enregistrée pour cette journée.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

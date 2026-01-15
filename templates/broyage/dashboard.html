@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container mt-4">
+    <h2 class="mb-4">📊 Dashboard Broyage — {{ request.user.profil.site }}</h2>
+
+    {% include 'dashboard_head.html' %}
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <h4>Détails par ans</h4>
+    </div>
+
+  <canvas id="broyageChart"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+const labels = {{ labels|safe }};
+const production = {{ production|safe }};
+const rendement = {{ rendement|safe }};
+const consomation = {{ consomation|safe }};
+
+var ctx = document.getElementById('broyageChart').getContext('2d');
+var chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            { label: 'production (T)', data: production, borderColor: 'blue', fill: false },
+            { label: 'rendement (T/H)', data: rendement, borderColor: 'red', fill: false },
+            { label: 'consomation (Kw/T)', data: consomation, borderColor: 'green', fill: false, yAxisID: 'y2' },
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                ticks: { callback: v => v.toFixed(2) }
+            },
+            y2: {
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                ticks: { callback: v => v.toFixed(2) + " %" }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

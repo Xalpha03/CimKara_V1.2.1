@@ -1,0 +1,125 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+<div class="card shadow-lg border-0 rounded-4 mt-5 overflow-hidden">
+  <!-- En-tête stylisée -->
+  <div class="card-header text-white text-center fw-bold fs-5 py-3" style="background: linear-gradient(90deg, #212529 0%, #0d6efd 60%, #6610f2 100%); letter-spacing: 1px; text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.25);">
+    ⚙️ Tableau de Packing – <span class="fw-light">Suivi quotidien</span>
+  </div>
+
+  <!-- Tableau principal -->
+  <div class="card-body p-0 table-responsive">
+    <table class="table table-hover table-bordered table-sm align-middle text-center mb-0">
+      <!-- En-tête du tableau -->
+      <thead class="table-primary text-uppercase small">
+        <tr>
+          <th rowspan="2" class="fs-6 align-middle">#</th>
+
+          {% if role == role %}
+            <th rowspan="2" class="fs-6 align-middle">🧑‍💼 user</th>
+          {% endif %}
+
+          <th rowspan="2" class="fs-6 align-middle">📍 Poste</th>
+          <th colspan="5" class="fs-6 align-middle">🏭 Packing</th>
+          <th colspan="2" class="fs-6 align-middle">⏱️ Durée</th>
+        </tr>
+        <tr class="table-light">
+          <th class="fs-6" title="Livraison">🚚 Livraison</th>
+          <th class="fs-6" title="Casse">💥 Casse</th>
+          <th class="fs-6" title="Tx Casse">📉 Tx Casse</th>
+          <th class="fs-6" title="Vrack">🪣 Vrack</th>
+          <th class="fs-6" title="Rendement">📈 Rendement</th>
+          <th class="fs-6" title="Arrêt">⛔ Arrêt</th>
+          <th class="fs-6" title="Marche">✅ Marche</th>
+        </tr>
+      </thead>
+
+      <!-- Corps du tableau -->
+      <tbody>
+        {% if object_pack %}
+          {% for item in object_pack %}
+            <tr class="align-middle {% if item.livraison|default:0 > 206 %}
+                table-success
+              {% elif item.livraison|default:0 > 200 %}
+                table-warning
+              {% else %}
+                table-danger
+              {% endif %}">
+              <td class="fw-bold">{{ forloop.counter }}</td>
+
+              {% if role == role %}
+                <td class="fw-bold text-primary">{{ item.user.get_full_name }}</td>
+              {% endif %}
+
+              <td class="fw-bold text-primary">{{ item.title }}</td>
+              <td>{{ item.livraison }}</td>
+              <td>{{ item.casse }}</td>
+              <td>{{ item.tx_cas }} %</td>
+              <td>{{ item.vrack }}</td>
+              <td>{{ item.rend }}</td>
+              <td>{{ item.temp_arret_formate }}</td>
+              <td>{{ item.temps_marche_formate }}</td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="9" class="text-center text-muted py-4 fst-italic">🌟 Aucune panne enregistrée pour cette date.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+
+      <tfoot class="text-white fw-bold" style="background: linear-gradient(90deg, #198754, #20c997); letter-spacing: 0.5px;">
+        {% if object_pack %}
+          <tr>
+            {% if role == role %}
+              <td colspan="3" class="text-end pe-3 border-0 fs-6">🔢 Total :</td>
+            {% else %}
+              <td colspan="2" class="text-end pe-3 border-0 fs-6">🔢 Total :</td>
+            {% endif %}
+
+            <td class="text-center pe-3 border-0 fs-6">{{ total_livraison }}</td>
+            <td class="text-center pe-3 border-0 fs-6">{{ total_casse }}</td>
+            <td class="text-center pe-3 border-0 fs-6">{{ moyenne_tx_casse }}</td>
+            <td class="text-center pe-3 border-0 fs-6">{{ total_vrack }}</td>
+            <td class="text-center pe-3 border-0 fs-6">{{ moyenne_rendement }}</td>
+            <td class="text-center pe-3 border-0 fs-6">{{ total_temps_arret_formate }}</td>
+            <td class="text-center pe-3 border-0 fs-6">{{ total_temps_marche }}</td>
+          </tr>
+        {% endif %}
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- Styles additionnels -->
+<style>
+  /* Effet au survol des lignes */
+  .table-hover tbody tr:hover {
+    background-color: #f3f6fa !important;
+    transform: scale(1.01);
+    transition: all 0.25s ease-in-out;
+  }
+  
+  /* Badges compacts et lisibles */
+  .badge {
+    font-size: 0.8rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Lignes plus confortables */
+  table td,
+  table th {
+    vertical-align: middle !important;
+    padding: 0.6rem !important;
+  }
+  
+  /* Effet de survol subtil de la carte */
+  .card {
+    border-radius: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  }
+</style>

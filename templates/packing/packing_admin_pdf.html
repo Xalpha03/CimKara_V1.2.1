@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport Broyage - Tableau</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 6px;
+            text-align: center;
+        }
+        th {
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Rapport Broyage {{ search_date }}</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Post</th>
+                <th>Livrason</th>
+                <th>Casse</th>
+                <th>Taux Casse</th>
+                <th>Rendement</th>
+                {% comment %} <th>Temps marche</th> {% endcomment %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in object_pack %}
+            <tr>
+                <td>{{ t.user }}</td>
+                <td>{{ t.title }}</td>
+                <td>{{ t.livraison }}</td>
+                <td>{{ t.casse }}</td>
+                <td>{{ t.tx_cas }}</td>
+                <td>{{ t.rend }}</td>
+                {% comment %} <td>{{ t.conso }}</td> {% endcomment %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"><strong>Total</strong></td>
+                <td>{{ total_livraison }}</td>
+                <td>{{ total_casse }}</td>
+                <td>{{ moyenne_tx_casse }}</td>
+                <td>{{ moyenne_rendement }}</td>
+                {% comment %} <td>{{ total_temps_marche_formate }}</td> {% endcomment %}
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

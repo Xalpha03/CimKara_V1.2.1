@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container mt-5 col-md-6">
+    <h3 class="mb-4 text-center">Créer un nouvel utilisateur</h3>
+    {% if form.errors %}
+      <ul>
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="mb-3">{{ form.username.label_tag }}
+        {{ form.username }}
+        {{ form.username.errors }}</div>
+
+      <div class="mb-3">{{ form.email.label_tag }}
+        {{ form.email }}
+        {{ form.email.errors }}</div>
+
+      <div class="mb-3">{{ form.password.label_tag }}
+        {{ form.password }}
+        {{ form.password.errors }}</div>
+
+      <div class="mb-3">{{ form.confirm_password.label_tag }}
+        {{ form.confirm_password }}
+        {{ form.confirm_password.errors }}</div>
+
+      <div class="mb-3">{{ form.poste.label_tag }}
+        {{ form.poste }}</div>
+
+      <div class="mb-3">{{ form.site.label_tag }}
+        {{ form.site }}</div>
+
+      <div class="mb-3">{{ form.role.label_tag }}
+        {{ form.role }}</div>
+
+      <button type="submit" class="btn btn-primary w-100">Créer le compte</button>
+    </form>
+  </div>
+{% endblock %}
+
+
+
+
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg border-0 rounded-4 p-4 col-md-6">
+      <!-- En-tête -->
+      <div class="text-center mb-4">
+        <h3 class="fw-bold text-primary">👤 Créer un nouvel utilisateur</h3>
+        <p class="text-muted mb-0">Remplissez les informations ci-dessous pour créer un compte.</p>
+      </div>
+
+      <!-- Gestion des erreurs -->
+      {% if form.errors %}
+        <div class="alert alert-danger rounded-3">
+          <ul class="mb-0">
+            {% for field in form %}
+              {% for error in field.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <!-- Formulaire -->
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-secondary">{{ form.username.label }}</label>
+          {{ form.username|add_class:'form-control form-control-lg rounded-3 shadow-sm' }}
+          <div class="text-danger small">{{ form.username.errors }}</div>
+        </div>
+
+        {% comment %} <div class="mb-3">
+          <label class="form-label fw-semibold text-secondary">{{ form.email.label }}</label>
+          {{ form.email|add_class:'form-control form-control-lg rounded-3 shadow-sm' }}
+          <div class="text-danger small">{{ form.email.errors }}</div>
+        </div> {% endcomment %}
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-secondary">{{ form.password.label }}</label>
+          {{ form.password|add_class:'form-control form-control-lg rounded-3 shadow-sm' }}
+          <div class="text-danger small">{{ form.password.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-secondary">{{ form.confirm_password.label }}</label>
+          {{ form.confirm_password|add_class:'form-control form-control-lg rounded-3 shadow-sm' }}
+          <div class="text-danger small">{{ form.confirm_password.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-secondary">{{ form.poste.label }}</label>
+          {{ form.poste|add_class:'form-select form-select-lg rounded-3 shadow-sm' }}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-secondary">{{ form.site.label }}</label>
+          {{ form.site|add_class:'form-select form-select-lg rounded-3 shadow-sm' }}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-secondary">{{ form.role.label }}</label>
+          {{ form.role|add_class:'form-select form-select-lg rounded-3 shadow-sm' }}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 shadow-sm">🚀 Créer le compte</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+

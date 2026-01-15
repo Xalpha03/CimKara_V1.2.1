@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport Broyage - Tableau</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 6px;
+            text-align: center;
+        }
+        th {
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Rapport Packing {{ search_date }}</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Post</th>
+                <th>Debut</th>
+                <th>Fin</th>
+                <th>Durée</th>
+                <th>Département</th>
+                <th>Cause</th>
+                <th>Action</th>
+                {% comment %} <th>Temps marche</th> {% endcomment %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in object_pannes %}
+            <tr>
+                <td>{{ t.packing.user }}</td>
+                <td>{{ t.packing.title }}</td>
+                <td>{{ t.start_panne|date:'H:i' }}</td>
+                <td>{{ t.end_panne|date:'H:i' }}</td>
+                <td>{{ t.duree }}</td>
+                <td>{{ t.departement }}</td>
+                <td>{{ t.description|truncatechars:550|default:'—' }}</td>
+                
+                {% if t.solution %}
+                    <td>{{ t.solution|truncatechars:550|default:'—' }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+                    
+                {% comment %} <td>{{ t.conso }}</td> {% endcomment %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"><strong>Total</strong></td>
+                <td colspan="6">{{ total_temps_arret_formate }}</td>
+                
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

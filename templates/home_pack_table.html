@@ -1,0 +1,74 @@
+<div class="row align-items-end px-1">
+  <!-- Colonne tableau -->
+  <div class="col-12 col-md-8">
+    <div class="card">
+      <div class="table-responsive">
+        {% include 'home_head.html' %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="d-flex justify-content-center gap-4">
+      <div class="silo" data-value="{{ silo_1 }}">
+        <div class="silo-inner">
+          <div class="silo-fill bg-success"></div>
+        </div>
+        <div class="silo-label">Silo1 ({{ silo_1 }}%)</div>
+      </div>
+
+      <div class="silo" data-value="{{ silo_2 }}">
+        <div class="silo-inner">
+          <div class="silo-fill bg-danger"></div>
+        </div>
+        <div class="silo-label">Silo2 ({{ silo_2 }}%)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .silo {
+    text-align: center;
+  }
+  .silo-inner {
+    width: 100px;
+    height: 250px;
+    border: 3px solid #000;
+    background-color: #f8f9fa;
+    position: relative;
+    overflow: hidden;
+  }
+  .silo-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    transition: height 1s ease-in-out;
+  }
+  .silo-label {
+    margin-top: 8px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+  }
+</style>
+
+<script>
+  console.log("Script chargé ✅");
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM prêt ✅");
+    const silos = document.querySelectorAll(".silo");
+    console.log("Silos trouvés :", silos.length);
+
+    silos.forEach((silo) => {
+      const fill = silo.querySelector(".silo-fill");
+      const targetHeight = parseFloat(silo.dataset.value) || 0;
+      console.log("Silo", targetHeight);
+      fill.style.height = "0%";
+      setTimeout(() => {
+        fill.style.height = targetHeight + "%";
+      }, 200);
+    });
+  });
+</script>
