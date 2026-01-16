@@ -12,50 +12,17 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 # from decouple import config
-import dj_database_url
 import logging
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'formatters': {
-#         'verbose': {
-#             'format': '{levelname} {asctime} {module} {message}',
-#             'style': '{',
-#         },
-#     },
-#     'handlers': {
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': os.path.join(BASE_DIR, 'logs/django.log'),
-#             'formatter': 'verbose',
-#         },
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django.db.backends': {
-#             'handlers': ['file', 'console'],
-#             'level': 'DEBUG',
-#         },
-#         'django.request': {
-#             'handlers': ['file', 'console'],
-#             'level': 'ERROR',
-#         },
-#     },
-# }
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = config('SECRET_KEY')
+
 SECRET_KEY = 'django-insecure-t^!y3+@ay4vzft8ywn=1m!$#b)mt@^#no41@o=6m=4@ztk&pa5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -123,12 +90,6 @@ DATABASES = {
 
 
 
-
-# DATABASES = {
-#     'default':dj_database_url.parse(config('DATABASE_URL'))
-# }
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -168,6 +129,7 @@ USE_L10N = False
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
 
