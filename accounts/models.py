@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 POSTES = [
+    ('chefQuart', 'Chef de Quart'),
     ('chefProduction', 'Chef Production'),
     ('operateurBroyage', 'Opérateur Broyage'),
     ('responsablPacking', 'Responsable Packing'),

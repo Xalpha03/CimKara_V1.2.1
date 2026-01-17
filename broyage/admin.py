@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Totaliseur_1, Totaliseur_2
+from .models import Production, Totaliseur_1, Totaliseur_2
 # Register your models here.
 
 class Totaliseur_1_Admin(admin.ModelAdmin):
@@ -19,8 +19,15 @@ class Totaliseur_2_Admin(admin.ModelAdmin):
     )
     search_fields = ('totaliseur__title', 'totaliseur__site__name', 'totaliseur__post__post')
     list_filter = ('totaliseur__site', 'totaliseur__post', 'totaliseur__date')
+    
+    
+class Production_Admin(admin.ModelAdmin):
+    list_display = ('title', 'post', 'site', 'date', 'production', 'conso', 'consignes', 'slug')
+    fields = ('user', 'post', 'site', 'date', 'production', 'conso', 'consignes')
+    search_fields = ('title', 'site__name', 'post__post')
+    list_filter = ('site', 'post', 'date')
 
-
+admin.site.register(Production, Production_Admin)
 admin.site.register(Totaliseur_1, Totaliseur_1_Admin)
 admin.site.register(Totaliseur_2, Totaliseur_2_Admin)
 

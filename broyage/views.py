@@ -3,7 +3,7 @@ from django.forms import BaseModelForm
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from .models import Totaliseur_1, Totaliseur_2
+from .models import Production, Totaliseur_1, Totaliseur_2
 from packing.models import Pannes
 from django.views.generic import TemplateView, CreateView, UpdateView
 from .forms import totali_1_Form, totali_2_Form
@@ -100,8 +100,8 @@ class broyageHomeView(TemplateView):
             setattr(t, 'temps_marche_formate', temps_marche_formate)
         
         for t in t2:
-            # temps_arret = obj_pan.filter(broyage=t.totaliseur).aggregate(total=Sum('duree'))['total'] or timedelta()
-            # temps_marche = t.totaliseur.post.duree_post - temps_arret
+            temps_arret = obj_pan.filter(broyage=t.totaliseur).aggregate(total=Sum('duree'))['total'] or timedelta()
+            temps_marche = t.totaliseur.post.duree_post - temps_arret
             
             production = sum((t.dif_clinker, t.dif_gypse, t.dif_dolomite))
             production = Decimal(production).quantize(Decimal('0'), rounding=ROUND_HALF_UP) if production else Decimal('0')
@@ -289,7 +289,6 @@ class broyageUserView(TemplateView):
         })
         return context
         
-    
 class broyagePanneUser(TemplateView):
     template_name = 'broyage/broyage_panne_user.html'
     
@@ -362,7 +361,6 @@ class broyagePanneUser(TemplateView):
             
         })
         return context
-    
     
 class broyageAdmin(TemplateView):
     template_name = 'broyage/broyage_admin.html'
@@ -445,8 +443,8 @@ class broyageAdmin(TemplateView):
             temps_marche = t.totaliseur.post.duree_post - temps_arret
             
             production = int(sum((t.dif_clinker, t.dif_gypse, t.dif_dolomite)))
-            rendement = Decimal(production)/Decimal(temps_marche.total_seconds()/3600)
-            conso = Decimal(t.dif_compt/production)
+            rendement = Decimal(production)/Decimal(temps_marche.total_seconds()/3600) if temps_marche.total_seconds() > 0 else Decimal('0')
+            conso = Decimal(t.dif_compt/production) if production > 0 else Decimal('0')
             
             # Calcul de temps de arret
             temps_arret_formate = get_date_formate(temps_arret)
@@ -470,10 +468,10 @@ class broyageAdmin(TemplateView):
             total_production += production
             total_production = total_production
             
-            total_rendement = Decimal(total_production)/Decimal(total_temps_marche.total_seconds()/3600)
+            total_rendement = Decimal(total_production)/Decimal(total_temps_marche.total_seconds()/3600) if total_temps_marche.total_seconds() > 0 else Decimal('0')
             total_rendement = total_rendement.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             
-            total_conso = Decimal(total_dif_compt/total_production)
+            total_conso = Decimal(total_dif_compt/total_production) if total_production > 0 else Decimal('0')
             total_conso = total_conso.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             
             # Calcul de temps de arret
@@ -517,9 +515,7 @@ class broyageAdmin(TemplateView):
             return response
 
         # Sinon, retour normal HTML
-        return self.render_to_response(context)
- 
-    
+        return self.render_to_response(context)  
 class broyagePanneAdmin(TemplateView):
     template_name = 'broyage/broyage_panne_admin.html'
     
@@ -624,7 +620,6 @@ class broyagePanneAdmin(TemplateView):
 
         return self.render_to_response(context)
     
-
 class ajoutTotaliseur_1(CreateView):
     model = Totaliseur_1
     form_class = totali_1_Form
@@ -677,13 +672,14 @@ class ajoutTotaliseur_2(CreateView):
         context = super().get_context_data(**kwargs)
         context['ajout_totali_2']='ajout_totali_2'
         return context
-    
 
 class ajoutBroyagePannes(CreateView):
     model = Pannes
     form_class = PanneForm
     template_name = 'broyage/formulaire.html'
     slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    success_url = reverse_lazy('broyage:broyage_home')
     
     def form_valid(self, form):
         slug = self.kwargs.get('slug')
@@ -702,6 +698,7 @@ class ajoutBroyagePannes(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         slug = self.kwargs.get('slug')
+        
         t1 = get_object_or_404(Totaliseur_1, slug=slug)
         object_pannes = Pannes.objects.filter(broyage=t1).order_by('pk')
         
@@ -716,7 +713,6 @@ class ajoutBroyagePannes(CreateView):
         })
         return context
      
-
 class updateTotaliseur_1(UpdateView):
     model = Totaliseur_1
     form_class = totali_1_Form
@@ -738,8 +734,7 @@ class updateTotaliseur_2(UpdateView):
     slug_url_kwarg = 'slug'
     context_object_name = 'update_totali_2'
     success_url = reverse_lazy('broyage:broyage_home')
-    
-        
+      
 class updatePanne(UpdateView):
     model = Pannes
     template_name = 'broyage/formulaire.html'
@@ -769,6 +764,66 @@ class updatePanne(UpdateView):
         print(slug)
         base_url = reverse_lazy('broyage:update_panne', kwargs={'slug': slug})
         return f'{base_url}'
+
+class productionUserView(TemplateView):
+    template_name = 'production/user_production.html'
+    
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) 
+
+        user = self.kwargs.get('username')
+        user = get_object_or_404(User, username=user)
+        
+        profil = getattr(user, 'profil', None)
+        
+        if profil:
+            role = profil.role
+            site = profil.site 
+            section = profil.section    
+        else:
+            role = None
+            site = None
+            section =None
+        
+        search_date = self.request.GET.get('search')
+        filter_productions = Q(production__user=user, site=site)
+                
+        if   search_date:
+            keywords = [kw.strip() for kw in search_date.split(',') if kw.strip()]
+            for kw in keywords:
+                try:
+                    search_date = datetime.strptime(kw, '%d/%m/%Y').date()
+                    filter_productions &= Q(production__date=search_date)
+                    
+                except ValueError:
+                    if kw.isdigit():
+                        kw_int = int(kw)
+                        if 1 <= kw_int <= 12:
+                            filter_productions &= Q(production__date__month=kw_int)
+                            
+                        elif 2000 <= kw_int <= date.today().year:
+                            filter_productions &= Q(production__date__year=kw_int)
+        # else:
+        #     existe = Production.objects.filter(date__m
+            
+        print(user)
+        context.update({
+            
+        })
+        return context
+        
+
+
+
+
+
+
+
+
+
+
+
 
 
 class dashboard(TemplateView):

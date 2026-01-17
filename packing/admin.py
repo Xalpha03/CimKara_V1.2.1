@@ -23,7 +23,7 @@ class Pannes_Admin(admin.ModelAdmin):
             return obj.packing.title 
         return "—"
     list_display = ('make_title', 'departement', 'start_panne', 'end_panne', 'duree', 'description', 'solution', 'slug')
-    fields = ('broyage', 'packing', 'departement', 'start_panne', 'end_panne', 'description', 'solution')
+    fields = ('broyage', 'packing', 'production', 'departement', 'start_panne', 'end_panne', 'description', 'solution')
     
     ordering = ('-packing__date', '-broyage__date')
     search_fields = ('broyage__make_title', 'packing__title')

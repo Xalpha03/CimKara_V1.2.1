@@ -125,6 +125,7 @@ class Pannes(models.Model):
     departement = models.CharField(max_length=50, choices=DEPARTEMENT_CHOICES, default="MEC")
     broyage = models.ForeignKey('broyage.Totaliseur_1', on_delete=models.CASCADE, blank=True, null=True)
     packing = models.ForeignKey(Packing, on_delete=models.CASCADE, blank=True, null=True)
+    production = models.ForeignKey('broyage.Production', on_delete=models.CASCADE, blank=True, null=True)
     start_panne =models.TimeField()
     end_panne = models.TimeField()
     duree = models.DurationField()
@@ -138,7 +139,7 @@ class Pannes(models.Model):
         # ordering = ['-packing__date', '-broyage__date']
         
     def get_source(self):
-        return self.packing or self.broyage
+        return self.packing or self.broyage or self.production
 
     
     def get_shift_letter(self):
@@ -166,11 +167,7 @@ class Pannes(models.Model):
         date_str = source.date.strftime('%d-%m-%Y')
         return f"Arret_{slugify(date_str)}_{self.get_shift_letter()}_{source.site}-{int(datetime.now().timestamp())}"
     
-    # def generate_slug(self):
-    #     source = getattr(self.get_source(), 'source', None)
-    #     if source is None:
-    #     else:
-    #         return f"Arret_{slugify(source.date)}_{self.get_shift_letter()}_{source.site}-{int(datetime.now().timestamp())}"
+    
 
     def calculate_duree(self):
         start_time = datetime.combine(self.date, self.start_panne)

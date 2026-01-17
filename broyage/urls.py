@@ -17,4 +17,6 @@ urlpatterns = [
     path('update_panne/<slug:slug>/', updatePanne.as_view(), name='update_panne'),
     path('dashboard/', dashboard.as_view(), name='dashboard'),
     
+    path('user_production/<str:username>', productionUserView.as_view(), name='user_production'),
+    
 ]

@@ -279,10 +279,10 @@ class homeView(TemplateView):
             
             production = sum((t.dif_clinker, t.dif_gypse, t.dif_dolomite))
             temps_marche_formate = get_date_formate(temps_marche)
-            rendement =Decimal(production)/Decimal(temps_marche.total_seconds()/3600)
+            rendement =Decimal(production)/Decimal(temps_marche.total_seconds()/3600) if production else Decimal('0.0')
             rendement = rendement.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-            conso = Decimal(t.dif_compt/production).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-            dif_compt_value = Decimal(t.dif_compt/1000).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+            conso = Decimal(t.dif_compt/production).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if production else Decimal('0.0') 
+            dif_compt_value = Decimal(t.dif_compt/1000).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP) if t.dif_compt else Decimal('0.0')
             
             setattr(t, 'conso', conso)
             setattr(t, 'dif_compt_value', dif_compt_value)
@@ -293,10 +293,10 @@ class homeView(TemplateView):
             production_total += production
             temps_marche_total += temps_marche
             temps_marche_total_formate = get_date_formate(temps_marche_total)
-            rendement_moyenne = Decimal(production_total)/Decimal(temps_marche_total.total_seconds()/3600)
+            rendement_moyenne = Decimal(production_total)/Decimal(temps_marche_total.total_seconds()/3600) if production_total else Decimal('0.0')
             rendement_moyenne = rendement_moyenne.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
             dif_compt_total += t.dif_compt
-            conso_moyenne = Decimal(dif_compt_total/production_total).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+            conso_moyenne = Decimal(dif_compt_total/production_total).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP) if production_total else Decimal('0.0')
             dif_compt_value_total = Decimal(dif_compt_total/1000).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
             
             print(conso_moyenne)

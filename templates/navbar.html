@@ -39,7 +39,20 @@
                   </li>
                 </ul>
               </li>
-            {% elif user.profil.section == 'broyage' %}
+            {% elif user.profil.section == 'broyage' and user.profil.poste == 'operateurBroyage' %}
+              <li class="nav-item dropdown">
+                <a data-mdb-dropdown-init class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" aria-expanded="false">{{ user.username }}</a>
+                <!-- Dropdown menu -->
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'broyage:user_broyage' user.username %}">Broyage List</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'broyage:user_broyage_panne' user.username %}">Broyage Panne</a>
+                  </li>
+                </ul>
+              </li>
+            {% elif user.profil.section == 'broyage' and user.profil.poste == 'chefQuart' %}
               <li class="nav-item dropdown">
                 <a data-mdb-dropdown-init class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" aria-expanded="false">{{ user.username }}</a>
                 <!-- Dropdown menu -->
@@ -95,6 +108,19 @@
                   <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li>
                       <a class="dropdown-item" href="{% url 'broyage:user_broyage' user.username %}">list broyage</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="{% url 'broyage:user_broyage_panne' user.username %}">list Panne</a>
+                    </li>
+                  </ul>
+                </li>
+              {% elif user.profil.poste == 'chefQuart' %}
+                <li class="nav-item dropdown">
+                  <a data-mdb-dropdown-init class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" aria-expanded="false">{{ user.username }}</a>
+                  <!-- Dropdown menu -->
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li>
+                      <a class="dropdown-item" href="{% url 'broyage:user_production' user.username %}">list production</a>
                     </li>
                     <li>
                       <a class="dropdown-item" href="{% url 'broyage:user_broyage_panne' user.username %}">list Panne</a>
