@@ -11,7 +11,7 @@ class PackingForm(forms.ModelForm):
     class Meta:
         model = Packing
         exclude = ('slug', 'title', 'user', 'site')
-        fields = ('post', 'livraison', 'casse', 'vrack', 'date', 'long_shift')
+        fields = ('post', 'livraison', 'casse', 'vrack', 'date', 'long_shift', 'consignes')
         widgets = {
             'long_shift': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
@@ -40,6 +40,12 @@ class PackingForm(forms.ModelForm):
                 },
                 format='%Y-%m-%d'  # ✅ format ISO compatible avec HTML5
             ),
+            
+            'consignes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 5,
+                'placeholder': 'Entrez les consignes pour le post suivant ici...',
+            }),
         }
 
     def filter_post_queryset(self, long_shift_checked): 

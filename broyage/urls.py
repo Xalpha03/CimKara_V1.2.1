@@ -18,5 +18,6 @@ urlpatterns = [
     path('dashboard/', dashboard.as_view(), name='dashboard'),
     
     path('user_production/<str:username>', productionUserView.as_view(), name='user_production'),
+    path('user_production_pannes/<str:username>', productionUserPanne.as_view(), name='user_production_panne'),
     
 ]

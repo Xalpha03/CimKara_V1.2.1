@@ -6,6 +6,12 @@
 
 {% block content %}
   <div class="container mt-4">
+    <div class="text-end mb-3">
+      {% if not pdf %}
+        <a href="?search={{ request.GET.search }}&download=pdf" target="_blank" class="btn btn-danger no-print">📄 Télécharger le PDF</a>
+      {% endif %}
+    </div>
+
     {% include 'pannes_table.html' %}
   </div>
 {% endblock %}

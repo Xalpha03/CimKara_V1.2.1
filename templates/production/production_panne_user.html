@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  <title>Detail Panne de {{ user_detail.username }}</title>
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="text-end mb-3">
+      {% if not pdf %}
+        {% comment %} <a href="?search={{ request.GET.search }}&download=pdf" target="_blank" class="btn btn-danger no-print">📄 Télécharger le PDF</a> {% endcomment %}
+      {% endif %}
+    </div>
+
+    <!-- Tableau des pannes -->
+    {% include 'pannes_table.html' %}
+  </div>
+
+  <style>
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+{% endblock %}

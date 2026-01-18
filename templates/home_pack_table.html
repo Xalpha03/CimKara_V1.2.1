@@ -8,21 +8,45 @@
     </div>
   </div>
 
-  <div class="col-md-4">
+  <div class="col-12 col-md-4">
     <div class="d-flex justify-content-center gap-4">
-      <div class="silo" data-value="{{ silo_1 }}">
-        <div class="silo-inner">
-          <div class="silo-fill bg-success"></div>
-        </div>
-        <div class="silo-label">Silo1 ({{ silo_1 }}%)</div>
-      </div>
+      {% for t2 in object_broy %}
+        <div class="silo if" data-value="{{ silo_1_view }}">
+          <div class="silo-inner">
+            <div class="silo-fill 
+            {% if silo_1|default:0 > 120 %}
+                
+                
+              bg-success
 
-      <div class="silo" data-value="{{ silo_2 }}">
-        <div class="silo-inner">
-          <div class="silo-fill bg-danger"></div>
+
+              {% elif 50 < silo_1|default:0 < 90 %}
+                
+                
+              bg-warning
+
+
+              {% else %}
+                
+                
+              bg-danger
+
+
+              {% endif %}
+               "></div>
+          </div>
+          <div class="silo-label">Silo1: {{ silo_1 }} T</div>
         </div>
-        <div class="silo-label">Silo2 ({{ silo_2 }}%)</div>
-      </div>
+
+        <div class="silo" data-value="{{ silo_2_view }}">
+          <div class="silo-inner">
+            <div class="silo-fill 
+            {% if silo_2|default:0 > 120 %}bg-success{% elif 50 < silo_2|default:0 < 90 %}bg-warning{% else %} bg-danger{% endif %}
+              "></div>
+          </div>
+          <div class="silo-label">Silo2: {{ silo_2 }} T</div>
+        </div>
+      {% endfor %}
     </div>
   </div>
 </div>
@@ -55,20 +79,15 @@
 </style>
 
 <script>
-  console.log("Script chargé ✅");
-  document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM prêt ✅");
-    const silos = document.querySelectorAll(".silo");
-    console.log("Silos trouvés :", silos.length);
-
+  document.addEventListener('DOMContentLoaded', () => {
+    const silos = document.querySelectorAll('.silo')
     silos.forEach((silo) => {
-      const fill = silo.querySelector(".silo-fill");
-      const targetHeight = parseFloat(silo.dataset.value) || 0;
-      console.log("Silo", targetHeight);
-      fill.style.height = "0%";
+      const fill = silo.querySelector('.silo-fill')
+      const targetHeight = parseFloat(silo.dataset.value) || 0
+      fill.style.height = '0%'
       setTimeout(() => {
-        fill.style.height = targetHeight + "%";
-      }, 200);
-    });
-  });
+        fill.style.height = targetHeight + '%'
+      }, 200)
+    })
+  })
 </script>

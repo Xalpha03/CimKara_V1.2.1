@@ -1,0 +1,94 @@
+<div class="row aligne-items-end my-2">
+  <!-- Colonne tableau -->
+  <div class="col-md-6">
+    <table class="table table-bordered border-black table-hover table-sm align-middle text-center mb-0">
+      <tr>
+        <th colspan="6" class="bg-success-subtle text-black fw-bolder">Consigne pour le prochain Post Broyage</th>
+      </tr>
+      <tr>
+        {% if object_production_06h_14h or object_production_06h_18h %}
+          {% for p in object_production %}
+            {% if p.post.post in '06H-14H 06H-18H' %}
+              <th class="bg-info-subtle text-dark fw-bolder">{{ p.post }}</th>
+              <th colspan="5" class="bg-light text-dark fw-bolder">{{ p.consignes }}</th>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <th class="bg-info-subtle text-dark fw-bolder">Post_06H-14H</th>
+          <th colspan="5" class="bg-light text-dark fw-bolder">Aucune consigne</th>
+        {% endif %}
+      </tr>
+      <tr>
+        {% if object_production_14h_22h %}
+          {% for p in object_production_14h_22h %}
+            <th class="bg-info-subtle text-dark fw-bolder">{{ p.post }}</th>
+            <th colspan="5" class="bg-light text-dark fw-bolder">{{ p.consignes }}</th>
+          {% endfor %}
+        {% else %}
+          <th class="bg-info-subtle text-dark fw-bolder">Post_14H-22H</th>
+          <th colspan="5" class="bg-light text-dark fw-bolder">Aucune consigne</th>
+        {% endif %}
+      </tr>
+      <tr>
+        {% if object_production_22h_06h %}
+          {% for p in object_production %}
+            {% if p.post.post in '22H-06H 18H-06H' %}
+              <th class="bg-info-subtle text-dark fw-bolder">{{ p.post }}</th>
+              <th colspan="5" class="bg-light text-dark fw-bolder">{{ p.consignes }}</th>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <th class="bg-info-subtle text-dark fw-bolder">Post_22H-06H</th>
+          <th colspan="5" class="bg-light text-dark fw-bolder">Aucune consigne</th>
+        {% endif %}
+      </tr>
+    </table>
+  </div>
+
+  <div class="col-md-6">
+    <table class="table table-bordered border-black table-hover table-sm align-middle text-center mb-0">
+      <tr>
+        <th colspan="6" class="bg-success-subtle text-black fw-bolder">Consigne pour le prochain Post Ensachage</th>
+      </tr>
+      <tr>
+        {% if object_pack_06h_14h or object_pack_06h_18h %}
+          {% for p in object_pack %}
+            {% if p.post.post in '06H-14H 06H-18H' %}
+              <th class="bg-info-subtle text-dark fw-bolder">{{ p.post }}</th>
+              <th colspan="5" class="bg-light text-dark fw-bolder">{{ p.consignes }}</th>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <th class="bg-info-subtle text-dark fw-bolder">Post_06H-14H</th>
+          <th colspan="5" class="bg-light text-dark fw-bolder">Aucune consigne</th>
+        {% endif %}
+      </tr>
+      <tr>
+        {% if object_pack_14h_22h %}
+          {% for p in object_pack_14h_22h %}
+            <th class="bg-info-subtle text-dark fw-bolder">{{ p.post }}</th>
+            <th colspan="5" class="bg-light text-dark fw-bolder">{{ p.consignes }}</th>
+          {% endfor %}
+        {% else %}
+          <th class="bg-info-subtle text-dark fw-bolder">Post_14H-22H</th>
+          <th colspan="5" class="bg-light text-dark fw-bolder">Aucune consigne</th>
+        {% endif %}
+      </tr>
+      <tr>
+        {% if object_pack_22h_06h or object_pack_18h_06h %}
+          {% for p in object_pack %}
+            {% if p.post.post in '22H-06H 18H-06H' %}
+              <th class="bg-info-subtle text-dark fw-bolder">{{ p.post }}</th>
+              <th colspan="5" class="bg-light text-dark fw-bolder">{{ p.consignes }}</th>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <th class="bg-info-subtle text-dark fw-bolder">Post_22H-06H</th>
+          <th colspan="5" class="bg-light text-dark fw-bolder">Aucune consigne</th>
+        {% endif %}
+      </tr>
+    </table>
+  </div>
+</div>
+
+

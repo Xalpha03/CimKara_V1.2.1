@@ -59,6 +59,7 @@ class Packing(models.Model):
     livraison = models.IntegerField(blank=True, null=True, default=0)
     casse = models.IntegerField(blank=True, null=True, default=0)
     vrack = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=Decimal('0.0'))
+    consignes = models.TextField(default='', blank=True)
     date = models.DateField(default=timezone.now)
     slug = models.SlugField()
     
@@ -96,6 +97,7 @@ class Packing(models.Model):
     
     def save(self, *args, **kwargs):
         self.clean_values()
+        self.consignes = self.consignes.upper()
         self.title = self.generate_title()
         if not self.slug:
             self.slug = self.generate_slug()

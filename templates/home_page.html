@@ -19,15 +19,19 @@
               Rapport
             {% endif %}
           </div>
+          <!-- Premier bloc : tableaux de données -->
           {% include 'home_pack_table.html' %}
+          <!-- Laboratoire Table -->
+          {% include 'labo_table.html' %}
+
           <div class="card-body p-3 table-responsive">
-            {% comment %} <div class="row g-3">
-              {% include 'home_head.html' %}
-            </div> {% endcomment %}
             <div class="row">
               {% include 'home_table.html' %}
             </div>
           </div>
+
+          <!-- - Tableau des consignes -->
+          {% include 'production/consigne_table.html' %}
         </div>
       </div>
     </div>

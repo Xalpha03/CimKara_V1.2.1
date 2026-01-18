@@ -14,7 +14,7 @@
         <tr>
           <th rowspan="2" class="fs-6 align-middle">#</th>
 
-          {% if role == role %}
+          {% if role == 'admin' %}
             <th rowspan="2" class="fs-6 align-middle">🧑‍💼 user</th>
           {% endif %}
 
@@ -26,7 +26,7 @@
           <th class="fs-6" title="Livraison">🚚 Livraison</th>
           <th class="fs-6" title="Casse">💥 Casse</th>
           <th class="fs-6" title="Tx Casse">📉 Tx Casse</th>
-          <th class="fs-6" title="Vrack">🪣 Vrack</th>
+          <th class="fs-6" title="Vrac">🪣 Vrac</th>
           <th class="fs-6" title="Rendement">📈 Rendement</th>
           <th class="fs-6" title="Arrêt">⛔ Arrêt</th>
           <th class="fs-6" title="Marche">✅ Marche</th>
@@ -46,8 +46,8 @@
               {% endif %}">
               <td class="fw-bold">{{ forloop.counter }}</td>
 
-              {% if role == role %}
-                <td class="fw-bold text-primary">{{ item.user.get_full_name }}</td>
+              {% if role == 'admin' %}
+                <td class="fw-bold text-primary text-uppercase">{{ item.user.last_name }}</td>
               {% endif %}
 
               <td class="fw-bold text-primary">{{ item.title }}</td>
@@ -70,7 +70,7 @@
       <tfoot class="text-white fw-bold" style="background: linear-gradient(90deg, #198754, #20c997); letter-spacing: 0.5px;">
         {% if object_pack %}
           <tr>
-            {% if role == role %}
+            {% if role == 'admin' %}
               <td colspan="3" class="text-end pe-3 border-0 fs-6">🔢 Total :</td>
             {% else %}
               <td colspan="2" class="text-end pe-3 border-0 fs-6">🔢 Total :</td>

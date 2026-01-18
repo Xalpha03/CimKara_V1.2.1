@@ -67,8 +67,8 @@ class Totaliseur_2(models.Model):
     clinker_totaliseur_2 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
     gypse_totaliseur_2 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
     dolomite_totaliseur_2 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
-    silo_1 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
-    silo_2 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
+    silo_1 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal(0.0))
+    silo_2 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal(0.0))
     
     dif_compt = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
     dif_clinker = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
@@ -109,10 +109,31 @@ class Totaliseur_2(models.Model):
         date_str = t1.date.strftime('%d/%m/%Y')
         return f'Broy_{date_str}_{self.get_shift_letter()}'
     
-    def make_silo(self):
-        
-        return
+    def make_silo(self, silo_metter: Decimal) -> Decimal: 
+        if silo_metter > Decimal("7.6"): 
+            return ( (Decimal("226.424") / Decimal("4.4")) * (Decimal("12.0") - silo_metter) ).quantize(Decimal("0"), rounding=ROUND_HALF_UP) 
+        else: 
+            return ( Decimal("226.424") + (Decimal("656.59") / Decimal("7.6")) * (Decimal("7.6") - silo_metter) ).quantize(Decimal("0"), rounding=ROUND_HALF_UP)
+
+    @property
+    def silo_1_value(self) -> Decimal: 
+        return self.make_silo(self.silo_1)
     
+    @property
+    def silo_2_value(self) -> Decimal: 
+        return self.make_silo(self.silo_2)
+    
+    
+    def update_silos(self):
+        new_silo_1 = self.silo_1_value
+        new_silo_2 = self.silo_2_value
+
+        if self.silo_1 != new_silo_1 or self.silo_2 != new_silo_2:
+            self.silo_1 = new_silo_1
+            self.silo_2 = new_silo_2
+            self.save(update_fields=["silo_1", "silo_2"])
+
+
     
     def save(self, *args, **kwargs):
         t1 = self.totaliseur

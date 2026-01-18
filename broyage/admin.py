@@ -11,7 +11,7 @@ class Totaliseur_1_Admin(admin.ModelAdmin):
 class Totaliseur_2_Admin(admin.ModelAdmin):
     list_display = (
         'title', 'compt_totaliseur_2', 'clinker_totaliseur_2', 'gypse_totaliseur_2', 'dolomite_totaliseur_2',
-        'dif_compt', 'totaliseur__date', 'slug', 'silo_1', 'silo_2'
+        'totaliseur__date', 'slug', 'silo_1', 'silo_1_value',
     )
     fields = (
         'totaliseur', 'compt_totaliseur_2', 'clinker_totaliseur_2', 'gypse_totaliseur_2', 'dolomite_totaliseur_2',

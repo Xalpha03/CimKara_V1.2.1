@@ -91,10 +91,10 @@ class broyageHomeView(TemplateView):
         total_temps_arret_formate = str()
         
         for t in t1:
-            temps_arret = obj_pan.filter(broyage=t).aggregate(total=Sum('duree'))['total'] or timedelta()
-            temps_marche = t.post.duree_post - temps_arret
+            temps_arret_t1 = obj_pan.filter(broyage=t).aggregate(total=Sum('duree'))['total'] or timedelta()
+            temps_marche_t1 = t.post.duree_post - temps_arret_t1
             
-            temps_marche_formate = get_date_formate(temps_marche)
+            temps_marche_formate = get_date_formate(temps_marche_t1)
 
             
             setattr(t, 'temps_marche_formate', temps_marche_formate)
@@ -299,6 +299,13 @@ class broyagePanneUser(TemplateView):
         search = self.request.GET.get('search')
         
         user = get_object_or_404(User, username=user)
+        profil = getattr(user, 'profil', None)
+        if profil:
+            role = profil.role
+            section = profil.section
+        else:
+            role = None
+            section =None
         
         filter_pannes = Q(broyage__user=user)
         
@@ -345,19 +352,20 @@ class broyagePanneUser(TemplateView):
                 
         object_pannes = Pannes.objects.filter(filter_pannes).order_by('-broyage__date', 'broyage__post')
         
-        total_temps_arret = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+        temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
         
-        heure = int(total_temps_arret.total_seconds())//3600
-        minute = int(total_temps_arret.total_seconds())%3600 // 60
-        total_temps_arret_formate = f'{heure:02d}:{minute:02d}'
-        total_temps_arret_formate = total_temps_arret_formate
+        
+        total_temps_arret_formate = get_date_formate(temps_arret_total)
         
         context.update({
-            'total': 'total',
+            # 'adm': 'adm',
+            'role': role,
+            'section': section,
             'broyage_panne': 'broyage_panne',
             'search_date': search_date,
             'object_pannes': object_pannes,
             'total_temps_arret_formate':total_temps_arret_formate,
+            'temps_arret_total': temps_arret_total,
             
         })
         return context
@@ -528,9 +536,11 @@ class broyagePanneAdmin(TemplateView):
         if profil:
             site = profil.site
             role = profil.role
+            section = profil.section
         else:
             site = None
             role = None
+            section =None
         print(role)   
         search = self.request.GET.get('search')
         filter_pannes = Q(broyage__site=site)
@@ -583,9 +593,11 @@ class broyagePanneAdmin(TemplateView):
         context.update({
             # 'admin': 'admin',
             'role': role,
+            'section': section,
             'total': 'total',
             'broyage_panne': 'broyage_panne',
             'object_pannes': object_pannes,
+            'temps_arret_total': total_temps_arret,
             'total_temps_arret_formate': total_temps_arret_formate
             
         })
@@ -787,29 +799,134 @@ class productionUserView(TemplateView):
             section =None
         
         search_date = self.request.GET.get('search')
-        filter_productions = Q(production__user=user, site=site)
+        filter_productions = Q(user=user, site=site)
                 
         if   search_date:
             keywords = [kw.strip() for kw in search_date.split(',') if kw.strip()]
             for kw in keywords:
                 try:
                     search_date = datetime.strptime(kw, '%d/%m/%Y').date()
-                    filter_productions &= Q(production__date=search_date)
+                    filter_productions &= Q(date=search_date)
                     
                 except ValueError:
                     if kw.isdigit():
                         kw_int = int(kw)
                         if 1 <= kw_int <= 12:
-                            filter_productions &= Q(production__date__month=kw_int)
+                            filter_productions &= Q(date__month=kw_int)
                             
                         elif 2000 <= kw_int <= date.today().year:
-                            filter_productions &= Q(production__date__year=kw_int)
-        # else:
-        #     existe = Production.objects.filter(date__m
+                            filter_productions &= Q(date__year=kw_int)
+        else:
+            month = date.today().month
+            year = date.today().year
+            filter_productions &= Q(date__month=month, date__year=year)
             
-        print(user)
+        productions = Production.objects.filter(filter_productions).order_by('-date')
+        
+        temps_arret_total = timedelta()
+        temps_marche_total = timedelta()
+        production_total = 0
+        moyenne_rendement = Decimal()
+        moyenne_conso = Decimal()
+        conso_total = Decimal()
+        
+        for p in productions:
+            temps_arret = Pannes.objects.filter(production=p).aggregate(total=Sum('duree'))['total'] or timedelta()
+            temps_marche = p.post.duree_post - temps_arret
+            
+            rendement = Decimal(p.production/(temps_marche.total_seconds()/3600)) if temps_marche.total_seconds() > 0 else Decimal('0')
+            rendement = rendement.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            
+            temps_arret_formate = get_date_formate(temps_arret)
+            temps_marche_formate = get_date_formate(temps_marche)
+            
+            temps_arret_total += temps_arret
+            temps_marche_total += temps_marche
+            
+            production_total += p.production
+            moyenne_rendement = Decimal(production_total)/Decimal(temps_marche_total.total_seconds()/3600) if temps_marche_total.total_seconds() > 0 else Decimal('0')
+            moyenne_rendement = moyenne_rendement.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            conso_total += Decimal(p.conso)
+            moyenne_conso = conso_total/Decimal(productions.count())
+            moyenne_conso = moyenne_conso.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            
+            
+            
+            setattr(p, 'rendement', rendement)  
+            setattr(p, 'temps_arret_formate', temps_arret_formate)
+            setattr(p, 'temps_marche_formate', temps_marche_formate)
+            
+            print(moyenne_conso)
+            
+            print('temps_arret :', temps_arret_formate)
         context.update({
+            'role': role,
+            'object_productions': productions,
+            'search_date': search_date,
             
+            'production_total': production_total,
+            'temps_arret_total': temps_arret_total,
+            'temps_marche_total': temps_marche_total,
+            'moyenne_rendement': moyenne_rendement,
+            'moyenne_conso': moyenne_conso,
+        })
+        return context
+    
+    
+class productionUserPanne(TemplateView):
+    template_name = 'production/production_panne_user.html'
+    
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        username = self.kwargs.get('username')
+        user = get_object_or_404(User, username=username)
+        
+        profil = getattr(user, 'profil', None)
+        if profil:
+            role = profil.role
+            section = profil.section
+        else:
+            role = None
+            section = None
+        
+        search = self.request.GET.get('search')
+        filter_pannes = Q(production__user=user)
+        
+        if search:
+            keywords = [kw.strip() for kw in search.split(',') if kw.strip()]
+            for kw in keywords:
+                try:
+                    search_date = datetime.strptime(kw, '%d/%m/%Y').date()
+                    filter_pannes &= Q(production__date=search_date)
+                    
+                except ValueError:
+                    if kw.isdigit():
+                        kw_int = int(kw)
+                        if 1 <= kw_int <= 12:
+                            filter_pannes &= Q(production__date__month=kw_int)
+                        elif 2000 <= kw_int <= date.today().year:
+                            filter_pannes &= Q(production__date__year=kw_int)
+                            
+        else:
+            month = date.today().month
+            year = date.today().year
+            filter_pannes &= Q(production__date__month=month, production__date__year=year)
+            
+        object_pannes = Pannes.objects.filter(filter_pannes).order_by('-production__date', 'production__post')
+        temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+        
+               
+        
+        print('total panne :', temps_arret_total)
+        
+        context.update({
+            'role': role,
+            'section': section,
+            'production_panne': 'production_panne',
+            'object_pannes': object_pannes,
+            'temps_arret_total': temps_arret_total,
         })
         return context
         

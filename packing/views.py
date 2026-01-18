@@ -82,6 +82,7 @@ class homeView(TemplateView):
         
         context.update(self.context_packing())
         context.update(self.context_broyage())
+        context.update(self.context_production())
         
         return context
     
@@ -262,10 +263,14 @@ class homeView(TemplateView):
         object_pannes = Pannes.objects.filter(filter_pann)
         
         last_silo = t2.last()
-        silo_1 = last_silo.silo_1 if last_silo else Decimal('0.0')
-        silo_2 = last_silo.silo_2 if last_silo else Decimal('0.0')
+        silo_1 = last_silo.silo_1_value if last_silo else Decimal('0.0')
+        silo_2 = last_silo.silo_2_value if last_silo else Decimal('0.0')
         
+        silo_1_view = silo_1 / 10
+        silo_2_view = silo_2 / 10
         
+        print('silo 1 ==>:', silo_1_view)
+        print('silo 2:', silo_2_view)
         production_total = int()
         temps_marche_total = timedelta()
         temps_marche_total_formate = str()
@@ -306,6 +311,8 @@ class homeView(TemplateView):
         return{
             'silo_1': silo_1,
             'silo_2': silo_2,
+            'silo_1_view': silo_1_view,
+            'silo_2_view': silo_2_view,
             'object_pannes': object_pannes,
             'object_broy': t2,
             'conso_moyenne': conso_moyenne,
@@ -323,6 +330,53 @@ class homeView(TemplateView):
             'object_broy_18h_06h': t2.filter(totaliseur__post__post='18H-06H'),
            
         }
+
+    def context_production(self):
+        user = self.request.user
+        profil = getattr(user, 'profil', None)
+        if profil:
+            site = profil.site
+        else:
+            site = None
+            
+        search_date = self.request.GET.get('search')
+        filter_prod = Q(site=site)
+        
+        if search_date:
+            try:
+                search_date = datetime.strptime(search_date, '%d/%m/%Y').date()
+            except ValueError:
+                filter_prod &= Q(pk__isnull=True)
+        else:
+            existe = Production.objects.filter(date=date.today(), site=site).exists()
+            
+            if existe:
+                search_date = date.today()
+            else:
+                last_production = Production.objects.aggregate(Max('date'))['date__max']
+                last_broyage = Totaliseur_2.objects.aggregate(Max('totaliseur__date'))['totaliseur__date__max']
+                
+                if last_production and last_broyage:
+                    search_date = max(last_production, last_broyage)
+                else:
+                    search_date = None
+
+                    
+        filter_prod &= Q(date=search_date)
+        
+        prod = Production.objects.filter(filter_prod)
+        
+        return{
+            'object_production': prod,
+            
+            'object_production_06h_14h': prod.filter(post__post='06H-14H'),
+            'object_production_14h_22h': prod.filter(post__post='14H-22H'),
+            'object_production_22h_06h': prod.filter(post__post='22H-06H'),
+            
+            'object_production_06h_18h': prod.filter(post__post='06H-18H'),
+            'object_production_18h_06h': prod.filter(post__post='18H-06H'),
+        }
+
 
 class packingHomeView(TemplateView):
     model = Packing
@@ -600,6 +654,7 @@ class packingPanneUserView(TemplateView):
         
         
         context.update({
+            # 'adm': 'adm',
             'total': 'total',
             'section': section,
             'object_pannes': object_pannes,
@@ -614,13 +669,16 @@ class packingAdminView(TemplateView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         user = self.request.user
+        user = get_object_or_404(User, username=user.username)
         profil = getattr(user, 'profil', None)
         search_date = self.request.GET.get('search')
         
         if profil:
             site = profil.site
+            role = profil.role
         else:
             site = None
+            role = None
             
         filter_pack = Q(site=site)
         
@@ -633,11 +691,11 @@ class packingAdminView(TemplateView):
             keywords = [kw.strip() for kw in search_date.split(',') if kw.strip()]
             for kw in keywords:
                 try:
-                    search_date = datetime.strptime(str(search_date), '%d/%m/%Y').date()
+                    search_date = datetime.strptime(str(kw), '%d/%m/%Y').date()
                     filter_pack &= Q(date=search_date)
                 except ValueError:
                     if kw.isalpha():
-                        filter_pack &= Q(user__username__icontains=str(kw))
+                        filter_pack &= Q(user__last_name__icontains=str(kw))
                         print(kw)
                     elif kw.isdigit():
                         kw_int = int(kw)
@@ -724,6 +782,7 @@ class packingAdminView(TemplateView):
 
             print('total_temps_marche:', total_temps_marche)
         context.update({
+            'role': role,
             'search_date': search_date,
             'object_pack': object_pack,
             
@@ -773,6 +832,8 @@ class packingPanneAdminView(TemplateView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         user = self.request.user
+        user = get_object_or_404(User, username=user)
+        
         search = self.request.GET.get('search')
 
         profil = getattr(user, 'profil', None)
@@ -796,11 +857,12 @@ class packingPanneAdminView(TemplateView):
             keywords = [kw.strip() for kw in search.split(',') if kw.strip()]
             for kw in keywords:
                 try:
-                    search_date = datetime.strptime(search, '%d/%m/%Y').date()
+                    search_date = datetime.strptime(kw, '%d/%m/%Y').date()
                     filter_pann &= Q(packing__date=search_date)
                 except ValueError:
                     if kw.isalpha():
-                        filter_pann &= Q(packing__user__username__icontains=str(kw))
+                        filter_pann &= Q(packing__user__last_name__icontains=str(kw))
+                        
                     elif kw.isdigit():
                         kw_int = int(kw)
                         if 1 <= kw_int <= 12:
@@ -823,14 +885,15 @@ class packingPanneAdminView(TemplateView):
                 filter_pann &= Q(packing__date__year=year)
                 
         object_pannes = Pannes.objects.filter(filter_pann).order_by('pk')
-        total_arret = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
-        total_temps_arret_formate = get_date_formate(total_arret)
-        print(user, '====>', site, '====>', role, '====>', section, '====>', existe)
+        temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+        total_temps_arret_formate = get_date_formate(temps_arret_total)
+
         context.update({
+            # 'adm': 'adm',
             'total': 'total',
             'role': role,
             'section': section,
-            # 'search_date': search_date,
+            'temps_arret_total': temps_arret_total,
             'object_pannes': object_pannes,
             'packing_panne': 'packing_panne',
             'total_temps_arret_formate': total_temps_arret_formate,

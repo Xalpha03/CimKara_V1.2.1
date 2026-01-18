@@ -8,6 +8,8 @@
     </tr>
   </thead>
   <tbody>
+    
+    <!-- Personnel du Shift A -->
     <tr>
       <td class="text-dark bg-light fw-bolder">Packing Shift A Leader</td>
 
@@ -32,30 +34,50 @@
         <td class="text-dark bg-info-subtle fw-bolder">—</td>
       {% endif %}
       <td class="text-dark bg-light fw-bolder">Grindind Shift A Leader</td>
-      <td class="text-dark bg-info-subtle fw-bolder">—</td>
-    </tr>
-    <tr>
-      <td class="text-dark bg-light fw-bolder">Packing Shift A Leader</td>
-      {% if object_pack_14h_22h  %}
-        {% for p in object_pack_14h_22h %}
+
+      {% if object_production_06h_14h or object_production_06h_18h %}
+        {% for p in object_production %}
+          {% if p.post.post == '06H-14H' or p.post.post == '06H-18H' %}
             <td class="text-dark bg-info-subtle fw-bolder">{{ p.user.last_name }}</td>
+          {% endif %}
+        {% endfor %}
+        {% else %}
+          <td class="text-dark bg-info-subtle fw-bolder">—</td> 
+      {% endif %}
+    </tr>
+
+    <!-- Personnel du Shift B -->
+    <tr>
+      <td class="text-dark bg-light fw-bolder">Packing Shift B Leader</td>
+      {% if object_pack_14h_22h %}
+        {% for p in object_pack_14h_22h %}
+          <td class="text-dark bg-info-subtle fw-bolder">{{ p.user.last_name }}</td>
         {% endfor %}
       {% else %}
         <td class="text-dark bg-info-subtle fw-bolder">—</td>
       {% endif %}
       <td class="text-dark bg-light fw-bolder">B</td>
-      {% if object_broy_14h_22h  %}
+      {% if object_broy_14h_22h %}
         {% for p in object_broy_14h_22h %}
-            <td class="text-dark bg-info-subtle fw-bolder">{{ p.totaliseur.user.last_name }}</td>
+          <td class="text-dark bg-info-subtle fw-bolder">{{ p.totaliseur.user.last_name }}</td>
         {% endfor %}
       {% else %}
         <td class="text-dark bg-info-subtle fw-bolder">—</td>
       {% endif %}
-      <td class="text-dark bg-light fw-bolder">Grindind Shift A Leader</td>
-      <td class="text-dark bg-info-subtle fw-bolder">—</td>
+      <td class="text-dark bg-light fw-bolder">Grindind Shift B Leader</td>
+
+      {% if object_production_14h_22h %}
+        {% for p in object_production_14h_22h %}
+          <td class="text-dark bg-info-subtle fw-bolder">{{ p.user.last_name }}</td>
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder">—</td>
+      {% endif %}
     </tr>
+
+    <!-- Personnel du Shift C -->
     <tr>
-      <td class="text-dark bg-light fw-bolder">Packing Shift A Leader</td>
+      <td class="text-dark bg-light fw-bolder">Packing Shift C Leader</td>
       {% if object_pack_22h_06h or object_pack_18h_06h %}
         {% for p in object_pack %}
           {% if p.post.post == '22H-06H' or p.post.post == '18H-06H' %}
@@ -75,9 +97,17 @@
       {% else %}
         <td class="text-dark bg-info-subtle fw-bolder">—</td>
       {% endif %}
-      <td class="text-dark bg-light fw-bolder">Grindind Shift A Leader</td>
-      <td class="text-dark bg-info-subtle fw-bolder">—</td>
+      <td class="text-dark bg-light fw-bolder">Grindind Shift C Leader</td>
+
+      {% if object_production_22h_06h or object_production_18h_06h %}
+        {% for p in object_production %}
+          {% if p.post.post == '22H-06H' or p.post.post == '18H-06H' %}
+            <td class="text-dark bg-info-subtle fw-bolder">{{ p.user.last_name }}</td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <td class="text-dark bg-info-subtle fw-bolder">—</td>
+      {% endif %}
     </tr>
   </tbody>
 </table>
-
