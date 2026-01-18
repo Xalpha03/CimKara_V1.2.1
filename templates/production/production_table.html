@@ -11,7 +11,7 @@
       <thead class="table-primary text-uppercase small">
         <tr>
           <th rowspan="2" class="fs-6 align-middle">#</th>
-          {% if user.profil.role == role %}
+          {% if role == 'admin' %}
             <th rowspan="2" class="fs-6 align-middle">🧑‍💼 user</th>
           {% endif %}
           <th rowspan="2" class="fs-6 align-middle">📍 Poste</th>
@@ -45,8 +45,8 @@
 
               {% endif %}">
               <td class="fw-bold">{{ forloop.counter }}</td>
-              {% if user.profil.role == role %}
-                <td class="fw-bold text-primary">{{ iteam.user.username }}</td>
+              {% if role == 'admin' %}
+                <td class="fw-bold text-primary text-uppercase">{{ iteam.user.last_name }}</td>
               {% endif %}
               <td class="fw-bold text-primary">{{ iteam.title }}</td>
               <td>{{ iteam.production|default:'—' }}</td>
@@ -66,15 +66,15 @@
       <tfoot class="text-white fw-bold" style="background: linear-gradient(90deg, #198754, #20c997); letter-spacing: 0.5px;">
         {% if object_productions %}
           <tr>
-            {% if user.profil.role == role %}
+            {% if role == 'admin' %}
               <td colspan="3" class="text-end pe-3 border-0 fs-6">🔢 Total :</td>
             {% else %}
               <td colspan="2" class="text-end pe-3 border-0 fs-6">🔢 Total :</td>
             {% endif %}
 
             <td class="text-center pe-3 border-0 fs-6">{{ production_total|default:'—' }}</td>
-            <td class="text-center pe-3 border-0 fs-6">{{ moyenne_rendement|default:'—' }}</td>
-            <td class="text-center pe-3 border-0 fs-6">{{ moyenne_conso|default:'—' }}</td>
+            <td class="text-center pe-3 border-0 fs-6">{{ rendement_moyenne|default:'—' }}</td>
+            <td class="text-center pe-3 border-0 fs-6">{{ conso_moyenne|default:'—' }}</td>
             <td class="text-center pe-3 border-0 fs-6">{{ temps_arret_total|default:'—' }}</td>
             <td class="text-center pe-3 border-0 fs-6">{{ temps_marche_total|default:'—' }}</td>
           </tr>

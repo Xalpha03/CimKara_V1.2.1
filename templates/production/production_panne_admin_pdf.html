@@ -3,7 +3,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Rapport Broyage - Tableau</title>
+    <title>Rapport Production - Tableau</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -25,7 +25,7 @@
     </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Rapport Packing {{ search_date }}</h2>
+    <h2 style="text-align:center;">Rapport Broyage {{ search_date }}</h2>
 
     <table>
         <thead>
@@ -44,8 +44,8 @@
         <tbody>
             {% for t in object_pannes %}
             <tr>
-                <td>{{ t.packing.user }}</td>
-                <td>{{ t.packing.title }}</td>
+                <td>{{ t.production.user.last_name }}</td>
+                <td>{{ t.production.title }}</td>
                 <td>{{ t.start_panne|date:'H:i' }}</td>
                 <td>{{ t.end_panne|date:'H:i' }}</td>
                 <td>{{ t.duree }}</td>

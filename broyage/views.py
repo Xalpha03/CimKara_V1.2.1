@@ -377,11 +377,13 @@ class broyageAdmin(TemplateView):
         context = super().get_context_data(**kwargs)
         
         user = self.request.user
+        user = get_object_or_404(User, username=user.username)
         
         profil = getattr(user, 'profil', None)
         if profil:
             role = profil.role
             site = profil.site 
+            poste = profil.poste
             section = profil.section
         else:
             role = None
@@ -409,7 +411,7 @@ class broyageAdmin(TemplateView):
                     
                 except ValueError:
                     if kw.isalpha():
-                        filter_totaliseur &= Q(totaliseur__user__username__icontains=str(kw))
+                        filter_totaliseur &= Q(totaliseur__user__last_name__icontains=str(kw))
                     elif kw.isdigit():
                         kw_int = int(kw)
                         if 1 <= kw_int <= 12:
@@ -492,6 +494,7 @@ class broyageAdmin(TemplateView):
             
         context.update({
             'role': role,
+            'poste':poste,
             'section': section,
             'search_date': search_date,
             'object_totaliseur_2': t2,
@@ -531,17 +534,19 @@ class broyagePanneAdmin(TemplateView):
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
         user = self.request.user
+        user = get_object_or_404(User, username=user.username)
         profil = getattr(user, 'profil', None)
         
         if profil:
             site = profil.site
             role = profil.role
+            poste = profil.poste
             section = profil.section
         else:
             site = None
             role = None
             section =None
-        print(role)   
+ 
         search = self.request.GET.get('search')
         filter_pannes = Q(broyage__site=site)
                   
@@ -559,7 +564,7 @@ class broyagePanneAdmin(TemplateView):
                     
                 except ValueError:
                     if kw.isalpha():
-                        filter_pannes &= Q(broyage__user__username__icontains=str(kw))
+                        filter_pannes &= Q(broyage__user__last_name__icontains=str(kw))
                     elif kw.isdigit():
                         kw_int = int(kw)
                         
@@ -594,6 +599,7 @@ class broyagePanneAdmin(TemplateView):
             # 'admin': 'admin',
             'role': role,
             'section': section,
+            'poste': poste,
             'total': 'total',
             'broyage_panne': 'broyage_panne',
             'object_pannes': object_pannes,
@@ -792,6 +798,7 @@ class productionUserView(TemplateView):
         if profil:
             role = profil.role
             site = profil.site 
+            poste = profil.poste
             section = profil.section    
         else:
             role = None
@@ -800,6 +807,12 @@ class productionUserView(TemplateView):
         
         search_date = self.request.GET.get('search')
         filter_productions = Q(user=user, site=site)
+        
+        existe = Production.objects.filter(
+            user=user,
+            date__month=date.today().month,
+            date__year=date.today().year
+        ).exists()
                 
         if   search_date:
             keywords = [kw.strip() for kw in search_date.split(',') if kw.strip()]
@@ -817,17 +830,24 @@ class productionUserView(TemplateView):
                         elif 2000 <= kw_int <= date.today().year:
                             filter_productions &= Q(date__year=kw_int)
         else:
-            month = date.today().month
-            year = date.today().year
-            filter_productions &= Q(date__month=month, date__year=year)
+            if not existe:
+                filter_productions &= Q(
+                    date__month=get_operational_month(),
+                    date__year=get_operational_year()
+                )
+                
+            else:
+                month = date.today().month
+                year = date.today().year
+                filter_productions &= Q(date__month=month, date__year=year)
             
         productions = Production.objects.filter(filter_productions).order_by('-date')
         
         temps_arret_total = timedelta()
         temps_marche_total = timedelta()
         production_total = 0
-        moyenne_rendement = Decimal()
-        moyenne_conso = Decimal()
+        rendement_moyenne = Decimal()
+        conso_moyenne = Decimal()
         conso_total = Decimal()
         
         for p in productions:
@@ -844,11 +864,11 @@ class productionUserView(TemplateView):
             temps_marche_total += temps_marche
             
             production_total += p.production
-            moyenne_rendement = Decimal(production_total)/Decimal(temps_marche_total.total_seconds()/3600) if temps_marche_total.total_seconds() > 0 else Decimal('0')
-            moyenne_rendement = moyenne_rendement.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-            conso_total += Decimal(p.conso)
-            moyenne_conso = conso_total/Decimal(productions.count())
-            moyenne_conso = moyenne_conso.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            rendement_moyenne = Decimal(production_total)/Decimal(temps_marche_total.total_seconds()/3600) if temps_marche_total.total_seconds() > 0 else Decimal('0')
+            rendement_moyenne = rendement_moyenne.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            conso_total += Decimal(p.conso) if p.conso else Decimal('0')
+            conso_moyenne = conso_total/Decimal(productions.count()) if productions.count() > 0 else Decimal('0')
+            conso_moyenne = conso_moyenne.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             
             
             
@@ -856,19 +876,19 @@ class productionUserView(TemplateView):
             setattr(p, 'temps_arret_formate', temps_arret_formate)
             setattr(p, 'temps_marche_formate', temps_marche_formate)
             
-            print(moyenne_conso)
-            
-            print('temps_arret :', temps_arret_formate)
+         
         context.update({
             'role': role,
+            'poste': poste,
+            'section': section,
             'object_productions': productions,
             'search_date': search_date,
             
             'production_total': production_total,
             'temps_arret_total': temps_arret_total,
             'temps_marche_total': temps_marche_total,
-            'moyenne_rendement': moyenne_rendement,
-            'moyenne_conso': moyenne_conso,
+            'rendement_moyenne': rendement_moyenne,
+            'conso_moyenne': conso_moyenne,
         })
         return context
     
@@ -894,6 +914,12 @@ class productionUserPanne(TemplateView):
         search = self.request.GET.get('search')
         filter_pannes = Q(production__user=user)
         
+        existe = Pannes.objects.filter(
+            production__user=user,
+            production__date__month=date.today().month,
+            production__date__year=date.today().year,
+        ).exists()
+        
         if search:
             keywords = [kw.strip() for kw in search.split(',') if kw.strip()]
             for kw in keywords:
@@ -906,13 +932,20 @@ class productionUserPanne(TemplateView):
                         kw_int = int(kw)
                         if 1 <= kw_int <= 12:
                             filter_pannes &= Q(production__date__month=kw_int)
+                            
                         elif 2000 <= kw_int <= date.today().year:
                             filter_pannes &= Q(production__date__year=kw_int)
                             
         else:
-            month = date.today().month
-            year = date.today().year
-            filter_pannes &= Q(production__date__month=month, production__date__year=year)
+            if not existe:
+                filter_pannes &= Q(
+                    production__date__month=get_operational_month(),
+                    production__date__year=get_operational_year()
+                )
+            else:
+                month = date.today().month
+                year = date.today().year
+                filter_pannes &= Q(production__date__month=month, production__date__year=year)
             
         object_pannes = Pannes.objects.filter(filter_pannes).order_by('-production__date', 'production__post')
         temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
@@ -931,17 +964,334 @@ class productionUserPanne(TemplateView):
         return context
         
 
+class productionAdminView(TemplateView):
+    template_name = 'production/production_admin.html'
+    
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        
+        user = self.request.user
+        user = get_object_or_404(User, username=user.username)
+        
+        profil = getattr(user, 'profil', None)
+        if profil:
+            role = profil.role
+            site = profil.site 
+            section = profil.section
+        else:
+            role = None
+            site = None
+            section =None
+        
+        search_date = self.request.GET.get('search')
+        filter_productions = Q(site=site)
+        
+        existe = Production.objects.filter(
+            site=site,
+            date__year=date.today().year
+        ).exists()
+                
+        if   search_date:
+            keywords = [kw.strip() for kw in search_date.split(',') if kw.strip()]
+            for kw in keywords:
+                try:
+                    search_date = datetime.strptime(kw, '%d/%m/%Y').date()
+                    filter_productions &= Q(date=search_date)
+                    
+                except ValueError:
+                    if kw.isdigit():
+                        kw_int = int(kw)
+                        if 1 <= kw_int <= 12:
+                            filter_productions &= Q(date__month=kw_int)
+                            
+                        elif 2000 <= kw_int <= date.today().year:
+                            filter_productions &= Q(date__year=kw_int)
+        else:
+            if not existe:
+                filter_productions &= Q(
+                    date__month=get_operational_month(),
+                    date__year=get_operational_year()
+                )
+            else:
+                month = date.today().month
+                year = date.today().year
+                filter_productions &= Q(date__month=month, date__year=year)
+            
+        productions = Production.objects.filter(filter_productions).order_by('-date')
+               
+        
+        context.update({
+            'adm': 'adm',
+            'role': role,
+            'section': section,
+            'object_productions': productions,
+            'search_date': search_date,
+        })
+        return context
+    
+    
+    
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        if request.GET.get('download') == 'pdf':
+            context['pdf'] = True
+
+            # Récupération de la date recherchée
+            search_date = context.get('search_date')
+
+            # Construction du nom du fichier
+            if search_date:
+                filename = f"rapport_{search_date.strftime('%d-%m-%Y')}.pdf"
+            else:
+                filename = "rapport.pdf"
+
+            # Génération du PDF
+            template = get_template('production/production_admin_pdf.html')
+            html_string = template.render(context)
+            pdf_file = HTML(string=html_string,
+                            base_url=request.build_absolute_uri()).write_pdf()
+
+            response = HttpResponse(pdf_file, content_type='application/pdf')
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            return response
+
+        return self.render_to_response(context)
+    
+    
+    
+class productionAdmin(TemplateView):
+    template_name = 'production/production_admin.html'
+    
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        user = self.request.user
+        user = get_object_or_404(User, username=user.username)
+        
+        profil = getattr(user, 'profil', None)
+        if profil:
+            role = profil.role
+            site = profil.site 
+            section = profil.section
+        else:
+            role = None
+            site = None
+            section =None
+        
+        search_date = self.request.GET.get('search')
+        filter_productions = Q(site=site)
+        
+        existe = Production.objects.filter(
+            site=site,
+            date__year=date.today().year
+        ).exists()
+                
+        if   search_date:
+            keywords = [kw.strip() for kw in search_date.split(',') if kw.strip()]
+            for kw in keywords:
+                try:
+                    search_date = datetime.strptime(kw, '%d/%m/%Y').date()
+                    filter_productions &= Q(date=search_date)
+                    
+                except ValueError:
+                    if kw.isalpha():
+                        filter_productions &= Q(user__last_name__icontains=str(kw))
+                        
+                    elif kw.isdigit():
+                        kw_int = int(kw)
+                        if 1 <= kw_int <= 12:
+                            filter_productions &= Q(date__month=kw_int)
+                            
+                        elif 2000 <= kw_int <= date.today().year:
+                            filter_productions &= Q(date__year=kw_int)
+        else:
+            if not existe:
+                filter_productions &= Q(
+                    date__year=get_operational_year()
+                )
+            else:
+                year = date.today().year
+                filter_productions &= Q(date__year=year)
+            
+        productions = Production.objects.filter(filter_productions).order_by('-date')
+        production_total = 0
+        temps_arret_total = timedelta()
+        temps_marche_total = timedelta()
+        rendement_moyenne = Decimal()
+        conso_total = Decimal()
+        conso_moyenne = Decimal()
+        for p in productions:
+            
+            temps_arret = Pannes.objects.filter(production=p).aggregate(total=Sum('duree'))['total'] or timedelta()
+            temps_marche = p.post.duree_post - temps_arret
+            
+            rendement = Decimal(p.production/(temps_marche.total_seconds()/3600)) if temps_marche.total_seconds() > 0 else Decimal('0')
+            rendement = rendement.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            
+            temps_arret_formate = get_date_formate(temps_arret)
+            temps_marche_formate = get_date_formate(temps_marche)   
+            
+            setattr(p, 'rendement', rendement)
+            setattr(p, 'temps_arret_formate', temps_arret_formate)
+            setattr(p, 'temps_marche_formate', temps_marche_formate)
+            
+            temps_arret_total += temps_arret
+            temps_marche_total += temps_marche
+            production_total += p.production if p.production else 0
+            rendement_moyenne = Decimal(production_total)/Decimal(temps_marche_total.total_seconds()/3600) if temps_marche_total.total_seconds() > 0 else Decimal('0')
+            rendement_moyenne = rendement_moyenne.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            
+            conso_total += Decimal(p.conso) if p.conso else Decimal('0')
+            conso_moyenne = conso_total/Decimal(productions.count()) if productions.count() > 0 else Decimal('0')
+            conso_moyenne = conso_moyenne.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            
+            print('temps_arret :', temps_arret)
+        
+        
+        context.update({
+            # 'adm': 'adm',
+            'role': role,
+            'section': section,
+            'object_productions': productions,
+            'search_date': search_date,
+            
+            'production_total': production_total,
+            'temps_arret_total': temps_arret_total,
+            'temps_marche_total': temps_marche_total,
+            'rendement_moyenne': rendement_moyenne,
+            'conso_moyenne': conso_moyenne,
+            
+        })
+        return context
+    
+    
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        if request.GET.get('download') == 'pdf':
+            context['pdf'] = True
+
+            # Récupération de la date recherchée
+            search_date = context.get('search_date')
+
+            # Construction du nom du fichier
+            if search_date:
+                filename = f"rapport_{search_date.strftime('%d-%m-%Y')}.pdf"
+            else:
+                filename = "rapport.pdf"
+
+            # Génération du PDF
+            template = get_template('production/production_admin_pdf.html')
+            html_string = template.render(context)
+            pdf_file = HTML(string=html_string,
+                            base_url=request.build_absolute_uri()).write_pdf()
+
+            response = HttpResponse(pdf_file, content_type='application/pdf')
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            return response
+
+        return self.render_to_response(context)
 
 
+class productionPanneAdmin(TemplateView):
+    template_name = 'production/production_panne_admin.html'
+    
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        user = self.request.user
+        user = get_object_or_404(User, username=user.username)
+        
+        profil = getattr(user, 'profil', None)
+        if profil:
+            role = profil.role
+            site = profil.site 
+            section = profil.section
+        else:
+            role = None
+            site = None
+            section =None
+        
+        search = self.request.GET.get('search')
+        filter_pannes = Q(production__site=site)
+        
+        existe = Pannes.objects.filter(
+            production__site=site,
+            production__date__year=date.today().year,
+        ).exists()
+        
+        if search:
+            keywords = [kw.strip() for kw in search.split(',') if kw.strip()]
+            for kw in keywords:
+                try:
+                    search_date = datetime.strptime(kw, '%d/%m/%Y').date()
+                    filter_pannes &= Q(production__date=search_date)
+                    
+                except ValueError:
+                    if kw.isdigit():
+                        kw_int = int(kw)
+                        if 1 <= kw_int <= 12:
+                            filter_pannes &= Q(production__date__month=kw_int)
+                            
+                        elif 2000 <= kw_int <= date.today().year:
+                            filter_pannes &= Q(production__date__year=kw_int)
+                            
+        else:
+            if not existe:
+                filter_pannes &= Q(
+                    production__date__year=get_operational_year()
+                )
+            else:
+                filter_pannes &= Q(
+                    production__date__year=date.today().year
+                )
+            
+        object_pannes = Pannes.objects.filter(filter_pannes).order_by('-production__date', 'production__post')
+        temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+                
 
+        
+        context.update({
+            # 'adm': 'adm',
+            'role': role,
+            'section': section,
+            'production_panne': 'production_panne',
+            'object_pannes': object_pannes,
+            'temps_arret_total': temps_arret_total,
+        })
+        return context
+    
+    
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
 
+        if request.GET.get('download') == 'pdf':
+            context['pdf'] = True
 
+            # Récupération de la date recherchée
+            search_date = context.get('search_date')
 
+            # Construction du nom du fichier
+            if search_date:
+                filename = f"rapport_{search_date.strftime('%d-%m-%Y')}.pdf"
+            else:
+                filename = "rapport.pdf"
 
+            # Génération du PDF
+            template = get_template('production/production_panne_admin_pdf.html')
+            html_string = template.render(context)
+            pdf_file = HTML(string=html_string,
+                            base_url=request.build_absolute_uri()).write_pdf()
 
+            response = HttpResponse(pdf_file, content_type='application/pdf')
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            return response
 
-
-
+        return self.render_to_response(context)
 
 class dashboard(TemplateView):
     template_name = 'broyage/dashboard.html'

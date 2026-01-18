@@ -15,4 +15,11 @@
     <!-- Tableau des pannes -->
     {% include 'pannes_table.html' %}
   </div>
+  <style>
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
 {% endblock %}

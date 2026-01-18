@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport Production - Tableau</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 6px;
+            text-align: center;
+        }
+        th {
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Rapport Production {{ search_date }}</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Post</th>
+                <th>Production</th>
+                <th>Rendement</th>
+                <th>Consommation</th>
+                <th>Temps arrêt</th>
+                <th>Temps marche</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in object_productions %}
+            <tr>
+                <td>{{ t.user.last_name }}</td>
+                <td>{{ t.title }}</td>
+                <td>{{ t.production }}</td>
+                <td>{{ t.rendement }}</td>
+                <td>{{ t.conso }}</td>
+                <td>{{ t.temps_arret_formate }}</td>
+                <td>{{ t.temps_marche_formate }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"><strong>Total</strong></td>
+                <td>{{ production_total }}</td>
+                <td>{{ rendement_moyenne }}</td>
+                <td>{{ conso_moyenne }}</td>
+                <td>{{ temps_arret_total }}</td>
+                <td>{{ temps_marche_total }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

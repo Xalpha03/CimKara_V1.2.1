@@ -1,4 +1,4 @@
-<div class="card shadow-lg border-0 rounded-4 mt-5 overflow-hidden">
+<div class="card shadow-lg border-0 rounded-4 mt-5 overflow-hidden mb-2">
   <!-- En-tête stylisée -->
   {% comment %} <p>{{ user_detail.username }}</p> {% endcomment %}
   <div class="card-header text-white text-center fw-bold fs-5 py-3" style="background: linear-gradient(90deg, #212529 0%, #0d6efd 60%, #6610f2 100%); letter-spacing: 1px; text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.25);">
@@ -118,8 +118,8 @@
       {% if object_pannes %}
         <tfoot class="text-white fw-bold" style="background: linear-gradient(90deg, #198754, #20c997); letter-spacing: 0.5px;">
           <tr>
-            <td colspan="4" class="text-end pe-3 border-0 fs-6">🌟 Total Temps d’Arrêt :</td>
-            <td colspan="6" class="text-start ps-3 border-0 fs-5 text-center">{{ temps_arret_total }}</td>
+            <td colspan="2" class="text-end pe-3 border-0 fs-6">🌟 Total Temps d’Arrêt :</td>
+            <td colspan="8" class="text-start ps-3 border-0 fs-5 text-center">{{ temps_arret_total }}</td>
           </tr>
         </tfoot>
       {% endif %}

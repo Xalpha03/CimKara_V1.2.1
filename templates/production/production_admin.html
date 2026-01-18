@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Production Administration
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-11">
+        <!-- 🧾 Tableau de synthèse -->
+        <div class="text-end mb-3">
+          <a href="?search={{ request.GET.search }}&download=pdf" target="_blank" class="btn btn-danger no-print">📄 Télécharger le PDF</a>
+        </div>
+        <!-- Tableau des pannes -->
+        {% include 'production/production_table.html' %}
+      </div>
+    </div>
+  </div>
+  <style>
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+{% endblock %}

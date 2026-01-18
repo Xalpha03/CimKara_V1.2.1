@@ -58,10 +58,10 @@
                 <!-- Dropdown menu -->
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                   <li>
-                    <a class="dropdown-item" href="{% url 'broyage:user_broyage' user.username %}">Broyage List</a>
+                    <a class="dropdown-item" href="">Production List</a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="{% url 'broyage:user_broyage_panne' user.username %}">Broyage Panne</a>
+                    <a class="dropdown-item" href="">Production Panne</a>
                   </li>
                 </ul>
               </li>
@@ -81,6 +81,21 @@
                 </li>
                 <li>
                   <a class="dropdown-item" href="{% url 'packing:packing_panne_admin' %}">Packing Panne</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'broyage:production_admin' %}">Production List</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'broyage:production_pannes_admin' %}">Production Panne</a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a data-mdb-dropdown-init class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" aria-expanded="false">Admin db</a>
+              <!-- Dropdown menu -->
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li>
+                  <a class="dropdown-item" href="{% url 'admin:index' %}" target="_blank">Admin db</a>
                 </li>
               </ul>
             </li>
@@ -140,9 +155,6 @@
               <li>
                 <a class="dropdown-item" href="{% url 'broyage:dashboard' %}">broyage</a>
               </li>
-              {% comment %} <li>
-                <a class="dropdown-item" href="{% url 'broyage:dashboard_broyage' %}">broyage</a>
-              </li> {% endcomment %}
             </ul>
           </li>
           {% comment %} <a class="navbar-brand mt-2 mt-lg-0" href=""><img src="" />dashboard</a> {% endcomment %}
@@ -151,6 +163,10 @@
       <!-- Left links -->
     </div>
     <!-- Collapsible wrapper -->
+
+
+
+
 
     <!-- Right elements -->
     <div class="d-flex align-items-center">

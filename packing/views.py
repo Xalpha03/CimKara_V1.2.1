@@ -649,8 +649,8 @@ class packingPanneUserView(TemplateView):
                 filter_pann &= Q(packing__date__month=month, packing__date__year=year)
                 
         object_pannes = Pannes.objects.filter(filter_pann).order_by('pk')
-        total_arret = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
-        total_temps_arret_formate = get_date_formate(total_arret)
+        temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+        total_temps_arret_formate = get_date_formate(temps_arret_total)
         
         
         context.update({
@@ -659,6 +659,7 @@ class packingPanneUserView(TemplateView):
             'section': section,
             'object_pannes': object_pannes,
             'packing_panne': 'packing_panne',
+            'temps_arret_total': temps_arret_total,
             'total_temps_arret_formate': total_temps_arret_formate
         })
         return context
@@ -676,9 +677,11 @@ class packingAdminView(TemplateView):
         if profil:
             site = profil.site
             role = profil.role
+            section = profil.section
         else:
             site = None
             role = None
+            section = None
             
         filter_pack = Q(site=site)
         
@@ -783,6 +786,7 @@ class packingAdminView(TemplateView):
             print('total_temps_marche:', total_temps_marche)
         context.update({
             'role': role,
+            'section': section,
             'search_date': search_date,
             'object_pack': object_pack,
             
@@ -887,6 +891,8 @@ class packingPanneAdminView(TemplateView):
         object_pannes = Pannes.objects.filter(filter_pann).order_by('pk')
         temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
         total_temps_arret_formate = get_date_formate(temps_arret_total)
+        
+        print('temps_arret_total:', temps_arret_total)
 
         context.update({
             # 'adm': 'adm',
@@ -896,7 +902,7 @@ class packingPanneAdminView(TemplateView):
             'temps_arret_total': temps_arret_total,
             'object_pannes': object_pannes,
             'packing_panne': 'packing_panne',
-            'total_temps_arret_formate': total_temps_arret_formate,
+            'temps_arret_total': temps_arret_total,
         })
         return context
     
