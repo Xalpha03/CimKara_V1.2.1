@@ -17,13 +17,14 @@ urlpatterns = [
     path('update_panne/<slug:slug>/', updatePanne.as_view(), name='update_panne'),
     path('dashboard/', dashboard.as_view(), name='dashboard'),
     
+    path('production_home/', productionHomeView.as_view(), name='production_home'),
     path('user_production/<str:username>', productionUserView.as_view(), name='user_production'),
     path('user_production_pannes/<str:username>', productionUserPanne.as_view(), name='user_production_panne'),
     path('production_admin/', productionAdmin.as_view(), name='production_admin'),
     path('production_pannes_admin/', productionPanneAdmin.as_view(), name='production_pannes_admin'),
-    # path('ajout_production/<slug:slug>/', ajoutProduction.as_view(), name='ajout_production'),
-    # path('ajout_production_panne/<slug:slug>/', ajoutProductionPannes.as_view(), name='ajout_production_panne'),
-    # path('update_production/<slug:slug>/', updateProduction.as_view(), name='   update_production'),
+    path('ajout_production/', ajoutProduction.as_view(), name='ajout_production'),
+    path('ajout_production_panne/<slug:slug>/', ajoutProductionPannes.as_view(), name='ajout_production_panne'),
+    path('update_production/<slug:slug>/', updateProduction.as_view(), name='update_production'),
     # path('update_production_panne/<slug:slug>/', updateProductionPanne.as_view(), name='update_production_panne'),
     
 ]

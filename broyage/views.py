@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from .models import Production, Totaliseur_1, Totaliseur_2
 from packing.models import Pannes
 from django.views.generic import TemplateView, CreateView, UpdateView
-from .forms import totali_1_Form, totali_2_Form
+from .forms import totali_1_Form, totali_2_Form, production_Form
 from packing.forms import PanneForm
 from django.db.models import Q, Sum
 from datetime import datetime, timedelta, date
@@ -67,11 +67,7 @@ class broyageHomeView(TemplateView):
             search_date = date.today()
             next_day = search_date + timedelta(days=1)
             
-            
-        # filter_pannes &= Q(broyage__date__in=[search_date, next_day])
-        # filter_tota_1 &= Q(date__in=[search_date, next_day])
-        # filter_tota_2 &= Q(totaliseur__date__in=[search_date, next_day])
-            
+                       
             
         filter_pannes &= Q(broyage__date=search_date)
         filter_tota_1 &= Q(date=search_date)
@@ -136,6 +132,7 @@ class broyageHomeView(TemplateView):
             'object_pannes': obj_pan,
             'object_totaliseur_1': t1,
             'object_totaliseur_2': t2,
+            'temps_arret_total': total_temps_arret,
             'total_temps_arret_formate': total_temps_arret_formate,
             
             'totaliseur_1_06h_14h': t1.filter(post__post='06H-14H'),
@@ -783,6 +780,95 @@ class updatePanne(UpdateView):
         base_url = reverse_lazy('broyage:update_panne', kwargs={'slug': slug})
         return f'{base_url}'
 
+
+class productionHomeView(TemplateView):
+    template_name = 'production/production_home.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        user = self.request.user
+        user = get_object_or_404(User, username=user.username)
+        
+        search = self.request.GET.get('search')
+        is_poste_12h = False
+        
+        
+        profil = getattr(user, 'profil', None)
+        if profil:
+            role = profil.role
+            site = profil.site 
+            poste = profil.poste
+            section = profil.section    
+        else:
+            role = None
+            site = None
+            section =None
+        
+        filter_productions = Q(site=site)
+        filter_pannes = Q(production__site=site)
+        
+        try:
+            if search is not None:
+                search_date = datetime.strptime(search, '%d/%m/%Y').date()
+            else:
+                search_date = date.today()
+        
+        except ValueError:
+            search_date = date.today()
+        
+        filter_productions &= Q(date=search_date)
+        filter_pannes &= Q(production__date=search_date)
+        
+        obj_pan = Pannes.objects.filter(filter_pannes)
+        productions = Production.objects.filter(filter_productions)
+        
+        if productions.filter(post__post__in=['06H-18H', '18H-06H']).exists():
+            is_poste_12h = True
+            
+            
+        temps_arret_total = timedelta()
+            
+        for p in productions:
+            
+            temps_arret = Pannes.objects.filter(production=p).aggregate(total=Sum('duree'))['total'] or timedelta()
+            temps_marche = p.post.duree_post - temps_arret
+            
+            rendement = Decimal(p.production/(temps_marche.total_seconds()/3600)) if temps_marche.total_seconds() > 0 else Decimal('0')
+            rendement = rendement.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            
+            temps_marche_formate = get_date_formate(temps_marche)
+            
+            temps_arret_total += temps_arret
+            
+            
+            
+            setattr(p, 'rendement', rendement)
+            setattr(p, 'temps_marche_formate', temps_marche_formate)
+            
+            
+            print(p.production, is_poste_12h, poste)
+        context.update({
+            'role': role,
+            'profil_poste': poste,
+            'section': section,
+            'object_pannes': obj_pan,
+            'is_poste_12h': is_poste_12h,
+            'search_date': search_date,
+            'temps_arret_total': temps_arret_total,
+            
+            'object_productions': productions,
+            'production_panne': 'production_panne',
+            
+            'object_productions_06h_14h': productions.filter(post__post='06H-14H'),
+            'object_productions_14h_22h': productions.filter(post__post='14H-22H'),
+            'object_productions_22h_06h': productions.filter(post__post='22H-06H'),
+            
+            'object_productions_06h_18h': productions.filter(post__post='06H-18H'),
+            'object_productions_18h_06h': productions.filter(post__post='18H-06H'),
+        })
+        return context
+
 class productionUserView(TemplateView):
     template_name = 'production/user_production.html'
     
@@ -1292,6 +1378,92 @@ class productionPanneAdmin(TemplateView):
             return response
 
         return self.render_to_response(context)
+
+class ajoutProduction(CreateView):
+    model = Production
+    form_class = production_Form
+    template_name = 'production/formulaire.html'
+    success_url = reverse_lazy('broyage:production_home')
+    
+    def form_valid(self, form):
+        user = self.request.user
+        profil = getattr(user, 'profil', None)
+        if profil:
+            site = profil.site
+        else:
+            form.instance = None
+            site = None
+        
+        form.instance.user=user
+        form.instance.site=site
+        
+        post = form.cleaned_data.get('post')
+        date = form.cleaned_data.get('date')
+        
+        existe = Production.objects.filter(post=post, date=date, site=site).exists()
+        if existe:
+            messages.warning(self.request, "⚠️ Une production pour ce poste existe déjà aujourd’hui.")
+            return redirect('broyage:ajout_production')
+
+        messages.success(self.request, "✅ Production ajoutée avec succès.")
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['ajout_production']= 'ajout_production'
+        return context
+    
+class ajoutProductionPannes(CreateView):
+    model = Pannes
+    form_class = PanneForm
+    template_name = 'production/formulaire.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    success_url = reverse_lazy('broyage:production_home')
+    
+    def form_valid(self, form):
+        slug = self.kwargs.get('slug')
+        
+        p = get_object_or_404(Production, slug=slug)
+        
+        form.instance.production=p
+        
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        slug = self.kwargs.get('slug')
+        base_url = reverse_lazy('broyage:ajout_production_panne', kwargs={'slug': slug})
+        return f'{base_url}'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        slug = self.kwargs.get('slug')
+        
+        p = get_object_or_404(Production, slug=slug)
+        object_pannes = Pannes.objects.filter(production=p).order_by('pk')
+        
+        temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+        total_temps_arret_formate = get_date_formate(temps_arret_total)
+             
+        context.update({
+            'production_panne': 'production_panne',
+            'object_pannes': object_pannes,
+            'temps_arret_total': temps_arret_total,
+            'total_temps_arret_formate': total_temps_arret_formate,
+        })
+        return context
+    
+class updateProduction(UpdateView):
+    model = Production
+    template_name = 'production/formulaire.html'
+    form_class = production_Form
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    context_object_name = 'update_production'
+    success_url = reverse_lazy('broyage:production_home')
+
+
+
 
 class dashboard(TemplateView):
     template_name = 'broyage/dashboard.html'

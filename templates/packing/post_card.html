@@ -1,41 +1,5 @@
 <div class="
-{% if poste == '06H-18H' or poste == '18H-06H' %}
-    
-    
-    
-    
-    
-    
-    
-    
- col-md-6
-
-
-
-
-
-
-
-
-  {% elif poste == '06H-14H' or poste == '14H-22H' or poste == '22H-06H' %}
-    
-    
-    
-    
-    
-    
-    
-    
- col-md-4
-
-
-
-
-
-
-
-
-  {% endif %}">
+{% if poste == '06H-18H' or poste == '18H-06H' %}col-md-6{% elif poste == '06H-14H' or poste == '14H-22H' or poste == '22H-06H' %}col-md-4{% endif %}">
   <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 hover-shadow">
     <div class="card-header bg-{{ couleur }} text-white fs-5 fw-bold">
       <div class="d-flex justify-content-between">

@@ -49,6 +49,50 @@ class totali_1_Form(forms.ModelForm):
                 format='%Y-%m-%d'  # ✅ format ISO compatible avec HTML5
             ),
         }
+        
+class production_Form(forms.ModelForm):
+    long_shift = forms.BooleanField(
+        required=False,
+        label="Cocher uniquement si c'est post de 12h"
+    ) 
+    class Meta:
+        model = Production
+        fields = ['post', 'production', 'conso', 'date', 'consignes', 'long_shift']
+        widgets = {
+            
+            'long_shift': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            
+            'post':forms.Select(attrs={
+                'class': 'form-select',
+            }),
+            
+            'production': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Entrez la production du broyage'
+            }),
+            
+            'conso': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Entrez la consommation du broyage'
+            }),
+            
+            'date': forms.DateInput(
+                attrs={
+                    'class': 'form-control',
+                    'type': 'date'
+                },
+                format='%Y-%m-%d'  # ✅ format ISO compatible avec HTML5
+            ),
+            
+            'consignes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 5,
+                'placeholder': 'Entrez les consignes pour le post suivant ici...',
+            }),
+        }
+        
     def filter_post_queryset(self, long_shift_checked): 
         if long_shift_checked: return Post.objects.filter(duree_post=timedelta(hours=12)) 
         return Post.objects.filter(duree_post=timedelta(hours=8))    
@@ -94,6 +138,8 @@ class totali_2_Form(forms.ModelForm):
                 'class': 'form-control'
             }),
         }
+        
+
         
         
         

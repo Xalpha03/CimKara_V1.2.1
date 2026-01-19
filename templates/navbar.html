@@ -23,6 +23,9 @@
               <li>
                 <a class="dropdown-item" href="{% url 'broyage:broyage_home' %}">Broyage</a>
               </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'broyage:production_home' %}">Production</a>
+              </li>
             </ul>
           </li>
           {% if user.profil.role == 'admin' %}

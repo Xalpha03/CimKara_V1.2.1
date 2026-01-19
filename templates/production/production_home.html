@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+  <title>Production Home</title>
+{% endblock %}
+{% block content %}
+  <div class="container mt-4">
+    <!-- Titre principal -->
+    <div class="text-center mb-4">
+      <div class="bg-gradient bg-primary text-white py-3 px-4 rounded-4 shadow fw-bold fs-4">
+        🏭 <span class="text-warning">Production</span> du {{ search_date }}
+      </div>
+    </div>
+    <!-- Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center shadow-sm" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Les 3 postes -->
+    <div class="row g-5">
+      {% if is_poste_12h %}
+        {% include 'production/post_card.html' with poste='06H-18H' couleur='primary' horaire='Poste 06H-18H' object_product=object_productions_06h_18h %}
+        {% include 'production/post_card.html' with poste='18H-06H' couleur='success' horaire='Poste 18H-06H' object_product=object_productions_18h_06h %}
+      {% else %}
+        {% include 'production/post_card.html' with poste='06H-14H' couleur='primary' horaire='Poste 06H-14H' object_product=object_productions_06h_14h %}
+        {% include 'production/post_card.html' with poste='14H-22H' couleur='success' horaire='Poste 14H-22H' object_product=object_productions_14h_22h %}
+        {% include 'production/post_card.html' with poste='22H-06H' couleur='warning' horaire='Poste 22H-06H' object_product=object_productions_22h_06h %}
+      {% endif %}
+    </div>
+
+    <!-- Tableau des pannes -->
+    {% include 'pannes_table.html' %}
+  </div>
+
+  <style>
+    .bg-gradient {
+      background: linear-gradient(135deg, var(--bs-primary), var(--bs-indigo));
+    }
+    
+    .hover-shadow:hover {
+      transform: translateY(-5px);
+      transition: all 0.3s ease;
+    }
+    
+    table tbody tr:hover {
+      background-color: #f9fafc;
+    }
+    
+    .card-header {
+      letter-spacing: 0.5px;
+    }
+  </style>
+  {% include 'refreesh.html' %}
+{% endblock %}

@@ -1,0 +1,80 @@
+<div class="
+{% if poste == '06H-18H' or poste == '18H-06H' %}
+    
+    
+    
+    col-md-6
+
+
+
+  {% elif poste == '06H-14H' or poste == '14H-22H' or poste == '22H-06H' %}
+    
+    
+    
+    col-md-4
+
+
+
+  {% endif %}">
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 hover-shadow">
+    <div class="card-header bg-{{ couleur }} text-white fs-5 fw-bold">
+      <div class="d-flex justify-content-between">
+        <a href="" class="text-white text-decoration-none">🕒{{ horaire }}</a>
+        {% if user.is_authenticated and section == 'broyage' and profil_poste == 'chefQuart' %}
+          {% if object_product %}
+            {% for ob in object_product %}
+              <a href="{% url 'broyage:update_production' ob.slug %}" class="text-white"><i class="fas fa-pen"></i></a>
+            {% endfor %}
+          {% else %}
+            <a href="{% url 'broyage:ajout_production' %}"><i class="fas fa-plus-circle text-white"></i></a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    <div class="card-body table-responsive p-0">
+      <table class="table table-bordered table-sm mb-0 align-middle text-center">
+        <tbody class="fs-6">
+          {% for iteam in object_productions %}
+            {% if iteam.post.post == poste %}
+              <tr>
+                <td colspan="2" class="fw-bold text-start">🛠️ Production</td>
+                <td>{{ iteam.production|default:'—' }}</td>
+                <td class="fst-italic text-muted">Ton</td>
+              </tr>
+              <tr>
+                <td colspan="2" class="fw-bold text-start">⚙️ Rendement</td>
+                <td>{{ iteam.rendement|default:'—' }}</td>
+                <td class="fst-italic text-muted">T/Hr</td>
+              </tr>
+              <tr>
+                <td colspan="2" class="fw-bold text-start">⚡ Conso</td>
+                <td>{{ iteam.conso|default:'—' }}</td>
+                <td class="fst-italic text-muted">KwH/T</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-bottom-4">
+        <div class="fw-bold text-{{ couleur }}">
+          {% for iteam in object_productions %}
+            {% if iteam.post.post == poste %}
+              ⏱️ TM : {{ iteam.temps_marche_formate }}
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div class="fw-bold text-{{ couleur }}">
+          {% for iteam in object_product %}
+            {{ iteam.user.last_name }}
+          {% endfor %}
+        </div>
+        {% for p in object_product %}
+          {% if user.is_authenticated and section == 'broyage' and profil_poste == 'chefQuart' %}
+            <a class="btn btn-outline-{{ couleur }} btn-sm rounded-pill shadow-sm" href="{% url 'broyage:ajout_production_panne' p.slug %}">➕ Ajouter panne</a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>

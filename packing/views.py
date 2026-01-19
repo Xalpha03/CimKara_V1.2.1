@@ -102,7 +102,7 @@ class homeView(TemplateView):
                 filename = "rapport.pdf"
 
             # Génération du PDF
-            template = get_template('home_print.html')
+            template = get_template('home_page_pdf.html')
             html_string = template.render(context)
             pdf_file = HTML(string=html_string,
                             base_url=request.build_absolute_uri()).write_pdf()
@@ -259,18 +259,21 @@ class homeView(TemplateView):
         filter_totali_2 &= Q(totaliseur__date=search_date)
         filter_pann &= Q(broyage__date=search_date)
         
-        t2 = Totaliseur_2.objects.filter(filter_totali_2)
+        t2 = Totaliseur_2.objects.filter(filter_totali_2).order_by('-pk')
         object_pannes = Pannes.objects.filter(filter_pann)
         
-        last_silo = t2.last()
+        last_silo = t2.first()
         silo_1 = last_silo.silo_1_value if last_silo else Decimal('0.0')
         silo_2 = last_silo.silo_2_value if last_silo else Decimal('0.0')
         
         silo_1_view = silo_1 / 10
         silo_2_view = silo_2 / 10
         
+
+        
         print('silo 1 ==>:', silo_1_view)
         print('silo 2:', silo_2_view)
+        
         production_total = int()
         temps_marche_total = timedelta()
         temps_marche_total_formate = str()
@@ -304,9 +307,7 @@ class homeView(TemplateView):
             conso_moyenne = Decimal(dif_compt_total/production_total).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP) if production_total else Decimal('0.0')
             dif_compt_value_total = Decimal(dif_compt_total/1000).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
             
-            print(conso_moyenne)
-                
-        
+       
         
         return{
             'silo_1': silo_1,
@@ -457,6 +458,7 @@ class packingHomeView(TemplateView):
             'section': section,
             'object_pack': object_pack,
             'object_pannes': object_pannes,
+            'temps_arret_total': total_temps_arret,
             'total_temps_arret_formate': total_temps_arret_formate,
             
             'object_pack_06h_14h': object_pack.filter(post__post='06H-14H'),
