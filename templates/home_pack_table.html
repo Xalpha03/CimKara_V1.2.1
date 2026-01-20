@@ -10,7 +10,7 @@
 
   <div class="col-12 col-md-4 mt-2">
     <div class="d-flex justify-content-center gap-4">
-      {% for t2 in object_broy %}
+      {% comment %} {% for t2 in object_broy %} {% endcomment %}
         <div class="silo if" data-value="{{ silo_1_view }}">
           <div class="silo-inner">
             <div class="silo-fill 
@@ -46,7 +46,7 @@
           </div>
           <div class="silo-label">Silo2: {{ silo_2 }} T</div>
         </div>
-      {% endfor %}
+      {% comment %} {% endfor %} {% endcomment %}
     </div>
   </div>
 </div>

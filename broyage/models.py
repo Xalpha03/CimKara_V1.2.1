@@ -67,8 +67,8 @@ class Totaliseur_2(models.Model):
     clinker_totaliseur_2 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
     gypse_totaliseur_2 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
     dolomite_totaliseur_2 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
-    silo_1 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal(0.0))
-    silo_2 = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal(0.0))
+    silo_1 = models.DecimalField(max_digits=20, decimal_places=2, default=None)
+    silo_2 = models.DecimalField(max_digits=20, decimal_places=2, default=None)
     
     dif_compt = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))
     dif_clinker = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.0'))

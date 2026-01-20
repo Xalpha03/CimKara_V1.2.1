@@ -259,9 +259,10 @@ class homeView(TemplateView):
         filter_totali_2 &= Q(totaliseur__date=search_date)
         filter_pann &= Q(broyage__date=search_date)
         
-        t2 = Totaliseur_2.objects.filter(filter_totali_2).order_by('-pk')
+        t2 = Totaliseur_2.objects.filter(filter_totali_2)
         object_pannes = Pannes.objects.filter(filter_pann)
         
+
         last_silo = t2.first()
         silo_1 = last_silo.silo_1_value if last_silo else Decimal('0.0')
         silo_2 = last_silo.silo_2_value if last_silo else Decimal('0.0')
