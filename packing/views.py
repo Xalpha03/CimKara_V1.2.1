@@ -259,7 +259,7 @@ class homeView(TemplateView):
         filter_totali_2 &= Q(totaliseur__date=search_date)
         filter_pann &= Q(broyage__date=search_date)
         
-        t2 = Totaliseur_2.objects.filter(filter_totali_2)
+        t2 = Totaliseur_2.objects.filter(filter_totali_2).order_by('-totaliseur__post__post')
         object_pannes = Pannes.objects.filter(filter_pann)
         
 

@@ -12,14 +12,14 @@
     <div class="d-flex justify-content-center gap-4">
         <div class="silo if" data-value="{{ silo_1_view }}">
           <div class="silo-inner">
-            <div class="silo-fill{% if silo_1|default:0 > 120 %}bg-success{% elif 50 < silo_1|default:0 < 90 %}bg-warning{% else %}bg-danger{% endif %} "></div>
+            <div class="silo-fill {% if silo_1|default:0 > 150 %} bg-success{% elif 60 > silo_1|default:0 > 150 %}bg-warning{% else %}bg-danger{% endif %} "></div>
           </div>
           <div class="silo-label">Silo1: {{ silo_1 }} T</div>
         </div>
 
         <div class="silo" data-value="{{ silo_2_view }}">
           <div class="silo-inner">
-            <div class="silo-fill{% if silo_2|default:0 > 120 %}bg-success{% elif 50 < silo_2|default:0 < 90 %}bg-warning{% else %}bg-danger{% endif %} "></div>
+            <div class="silo-fill {% if silo_2|default:0 > 150 %} bg-success {% elif 60 > silo_2|default:0 > 150 %}bg-warning{% else %}bg-danger{% endif %} "></div>
           </div>
           <div class="silo-label">Silo2: {{ silo_2 }} T</div>
         </div>
