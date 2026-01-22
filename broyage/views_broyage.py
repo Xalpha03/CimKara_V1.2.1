@@ -278,6 +278,7 @@ class broyageUserView(TemplateView):
             'total_production': total_production,
             'total_rendement': total_rendement,
             'total_conso': total_conso,
+            'total_temps_arret': total_temps_arret,
             'total_temps_marche': total_temps_marche,
             'total_temps_arret_formate': total_temps_arret_formate,
             'total_temps_marche_formate': total_temps_marche_formate,
@@ -486,6 +487,8 @@ class broyageAdmin(TemplateView):
             # Calcul de temps de marche            
             total_temps_marche_formate = get_date_formate(total_temps_marche)
             
+            print(total_temps_arret, total_temps_marche)
+            
             
         context.update({
             'role': role,
@@ -496,6 +499,7 @@ class broyageAdmin(TemplateView):
             'total_production': total_production,
             'total_rendement': total_rendement,
             'total_conso': total_conso,
+            'total_temps_arret': total_temps_arret,
             'total_temps_marche': total_temps_marche,
             'total_temps_arret_formate': total_temps_arret_formate,
             'total_temps_marche_formate': total_temps_marche_formate

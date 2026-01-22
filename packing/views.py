@@ -597,6 +597,8 @@ class packingUserView(TemplateView):
             'total_vrack': total_vrack,
             'moyenne_tx_casse': moyenne_tx_casse,
             'moyenne_rendement': moyenne_rendement,
+            'total_temps_arret': total_temps_arret,
+            'total_temps_marche': total_temps_marche,
             'total_temps_arret_formate': total_temps_arret_formate,
             'total_temps_marche_formate':total_temps_marche_formate
             
@@ -796,9 +798,10 @@ class packingAdminView(TemplateView):
             'total_livraison': total_livraison,
             'total_casse': total_casse,
             'total_vrack': total_vrack,
-            'total_temps_marche': total_temps_marche,
             'moyenne_tx_casse': moyenne_tx_casse,
             'moyenne_rendement': moyenne_rendement,
+            'total_temps_arret': total_temps_arret,
+            'total_temps_marche': total_temps_marche,
             'total_temps_arret_formate': total_temps_arret_formate,
             'total_temps_marche_formate':total_temps_marche_formate
             
