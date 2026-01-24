@@ -110,12 +110,8 @@
                     <td>
                       <a href="{% url 'broyage:update_broyage_panne' panne.slug %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">✏️</a>
                     </td>
-                  {% elif production_panne %}
-                    {% comment %} <td>
-                      <a href="{% url 'production:update_production_panne' panne.slug %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">✏️</a>
-                    </td> {% endcomment %}
+                  
                   {% else %}
-                    {% comment %} <td class="text-center text-muted">—</td> {% endcomment %}
                   {% endif %}
                 {% endif %}
               {% endif %}
@@ -124,7 +120,7 @@
         {% else %}
           <tr>
             {% if not object_pannes %}
-              <td colspan="9" class="text-center text-muted py-4 fst-italic">🌟 Aucune panne enregistrée pour cette date.</td>
+              <td colspan="10" class="text-center text-muted py-4 fst-italic">🌟 Aucune panne enregistrée pour cette date.</td>
             {% endif %}
           </tr>
         {% endif %}
