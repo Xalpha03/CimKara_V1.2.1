@@ -450,7 +450,7 @@ class packingHomeView(TemplateView):
             setattr(p, 'temps_marche_formate', temps_marche_formate)
         
         context.update({
-            
+            'adm': 'adm',
             'role': role,
             'poste': poste,
             'search_date': search_date,
@@ -571,8 +571,8 @@ class packingUserView(TemplateView):
             else:
                 Decimal(0.0)
             
-            moyenne_tx_casse = Decimal((total_casse * 100)/((total_livraison * 20) - total_casse))
-            moyenne_rendement = Decimal(total_livraison)/Decimal(total_temps_marche.total_seconds()/3600)
+            moyenne_tx_casse = Decimal((total_casse * 100)/((total_livraison * 20) - total_casse)) if total_casse > 0 else Decimal(0.0)
+            moyenne_rendement = Decimal(total_livraison)/Decimal(total_temps_marche.total_seconds()/3600) if total_livraison > 0 and total_temps_marche.total_seconds() > 0 else Decimal(0.0)
             
             moyenne_tx_casse = moyenne_tx_casse.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             moyenne_rendement = moyenne_rendement.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
@@ -772,8 +772,8 @@ class packingAdminView(TemplateView):
                 total_vrack = Decimal('0.0')
             
             
-            moyenne_tx_casse = Decimal((total_casse * 100)/((total_livraison * 20) - total_casse))
-            moyenne_rendement = Decimal(total_livraison)/Decimal(total_temps_marche.total_seconds()/3600)
+            moyenne_tx_casse = Decimal((total_casse * 100)/((total_livraison * 20) - total_casse)) if total_casse > 0 else Decimal(0.0)
+            moyenne_rendement = Decimal(total_livraison)/Decimal(total_temps_marche.total_seconds()/3600) if total_livraison > 0 and total_temps_marche.total_seconds() > 0 else Decimal(0.0)
             
             moyenne_tx_casse = moyenne_tx_casse.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             moyenne_rendement = moyenne_rendement.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
@@ -1001,11 +1001,12 @@ class ajout_Packing_Pannes(CreateView):
         slug = self.kwargs.get('slug')
         pack = get_object_or_404(Packing, slug=slug)
         object_pannes = Pannes.objects.filter(packing=pack)
-        temps_arret = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
-        total_temps_arret_formate = get_date_formate(temps_arret)
+        temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+        total_temps_arret_formate = get_date_formate(temps_arret_total)
         context.update({
             'packing_panne': 'packing_panne',
             'object_pannes': object_pannes,
+            'temps_arret_total': temps_arret_total,
             'total_temps_arret_formate': total_temps_arret_formate,
         })
         return context
@@ -1034,15 +1035,17 @@ class update_packing_panne(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         slug = self.kwargs.get('slug')
-        object_panne = get_object_or_404(Pannes, slug=slug)
-        pack = object_panne.packing
-        object_pannes = Pannes.objects.filter(packing=pack)
-        temps_arret = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
-        total_temps_arret_formate = get_date_formate(temps_arret)
+        object = get_object_or_404(Pannes, slug=slug)
+        
+        object_pannes = Pannes.objects.filter(slug=object.slug)
+        
+        temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+        total_temps_arret_formate = get_date_formate(temps_arret_total)
         context.update({
             'packing_panne': 'packing_panne',
             'object_pannes': object_pannes,
             'total_temps_arret_formate': total_temps_arret_formate,
+            'temps_arret_total': temps_arret_total,
         })
         
         return context

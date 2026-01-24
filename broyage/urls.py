@@ -14,7 +14,7 @@ urlpatterns = [
     path('ajout_panne/<slug:slug>/', ajoutBroyagePannes.as_view(), name='ajout_panne'),
     path('update_totaliseur_1/<slug:slug>/', updateTotaliseur_1.as_view(), name='update_totali_1'),
     path('update_totali_2/<slug:slug>/', updateTotaliseur_2.as_view(), name='update_totali_2'),
-    path('update_panne/<slug:slug>/', updatePanne.as_view(), name='update_panne'),
+    path('update_broyage_panne/<slug:slug>/', updatePanne.as_view(), name='update_broyage_panne'),
     path('dashboard/', dashboard.as_view(), name='dashboard'),
     
     path('production_home/', productionHomeView.as_view(), name='production_home'),

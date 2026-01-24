@@ -89,6 +89,7 @@ class broyageHomeView(TemplateView):
             
             temps_marche_formate = get_date_formate(temps_marche_t1)
 
+            temps_arret_total += temps_arret_t1
             
             setattr(t, 'temps_marche_formate', temps_marche_formate)
         
@@ -107,15 +108,16 @@ class broyageHomeView(TemplateView):
             setattr(t, 'conso', conso)
             
             # temps_arret_total = obj_pan.aggregate(total=Sum('duree'))['total'] or timedelta()
-            temps_arret_total += temps_arret          
+            # temps_arret_total += temps_arret          
              
-            total_temps_arret_formate = get_date_formate(temps_arret_total)  
+            # total_temps_arret_formate = get_date_formate(temps_arret_total)  
                 
             print('conso', conso)
             print('temps_arret ===> ', temps_arret)
             print('temps arret total ===> ', temps_arret_total)
             
         context.update({
+            'adm': 'adm',
             'role': role,
             'broyage_panne': 'broyage_panne',
             'object_pannes': obj_pan,
@@ -764,7 +766,10 @@ class updatePanne(UpdateView):
         context = super().get_context_data(**kwargs)
         slug = self.kwargs.get('slug')
         
-        object_pannes = Pannes.objects.filter(slug=slug)
+        object = get_object_or_404(Pannes, slug=slug)
+        
+        object_pannes = Pannes.objects.filter(slug=object.slug)
+        
         temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
         total_temps_arret_formate = get_date_formate(temps_arret_total)
         
@@ -772,7 +777,7 @@ class updatePanne(UpdateView):
             'broyage_panne': 'broyage_panne',
             'update_panne': 'update_panne',
             'object_pannes': object_pannes,
-            'temps_arret': temps_arret_total,
+            'temps_arret_total': temps_arret_total,
             'total_temps_arret_formate': total_temps_arret_formate,
         })
         return context

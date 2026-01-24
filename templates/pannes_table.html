@@ -26,7 +26,6 @@
               <th rowspan="2" class="fs-6 align-middle">🛠 Update</th>
             {% endif %}
           {% endif %}
-            
         </tr>
         <tr class="table-light">
           <th class="fs-6">Début</th>
@@ -41,15 +40,21 @@
           {% for panne in object_pannes %}
             <tr class="align-middle {% if panne.duree|default:0 > 60 %}
                 
+                
                 table-danger
+
 
               {% elif panne.duree|default:0 > 30 %}
                 
+                
                 table-warning
+
 
               {% else %}
                 
+                
                  table-light
+
 
               {% endif %}">
               <td class="fw-bold">{{ forloop.counter }}</td>
@@ -77,15 +82,13 @@
               <td>{{ panne.end_panne|date:'H:i' }}</td>
 
               <td class="fw-bold">
-                <span 
-                class="badge rounded-pill bg-{% if panne.duree|default:0 > 60 %}danger{% elif panne.duree|default:0 > 30 %}{% else %}success{% endif %}">
+                <span class="badge rounded-pill bg-{% if panne.duree|default:0 > 60 %}danger{% elif panne.duree|default:0 > 30 %}warning{% else %}success{% endif %}">
                   {{ panne.duree_formatee|default:'—' }}
                 </span>
               </td>
 
               <td>
-                <span  
-                class="badge rounded-pill bg-{% if panne.departement == 'MEC' %}danger{% elif panne.departement == 'ELECT' %}warning{% else %}secondary{% endif %}">
+                <span class="badge rounded-pill bg-{% if panne.departement == 'MEC' %}danger{% elif panne.departement == 'ELECT' %}warning{% else %}secondary{% endif %}">
                   {{ panne.departement }}
                 </span>
               </td>
@@ -99,10 +102,23 @@
 
               {% if user.is_authenticated %}
                 {% if adm %}
-                  <td><a href="{% url 'packing:update_packing_panne' panne.slug %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">✏️</a></td>
+                  {% if packing_panne %}
+                    <td>
+                      <a href="{% url 'packing:update_packing_panne' panne.slug %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">✏️</a>
+                    </td>
+                  {% elif broyage_panne %}
+                    <td>
+                      <a href="{% url 'broyage:update_broyage_panne' panne.slug %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">✏️</a>
+                    </td>
+                  {% elif production_panne %}
+                    {% comment %} <td>
+                      <a href="{% url 'production:update_production_panne' panne.slug %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">✏️</a>
+                    </td> {% endcomment %}
+                  {% else %}
+                    {% comment %} <td class="text-center text-muted">—</td> {% endcomment %}
+                  {% endif %}
                 {% endif %}
               {% endif %}
-
             </tr>
           {% endfor %}
         {% else %}
