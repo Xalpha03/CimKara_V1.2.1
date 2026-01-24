@@ -71,17 +71,16 @@ class broyageHomeView(TemplateView):
         filter_tota_1 &= Q(date=search_date)
         filter_tota_2 &= Q(totaliseur__date=search_date)
         
-        obj_pan = Pannes.objects.filter(filter_pannes)
+        obj_pan = Pannes.objects.filter(filter_pannes).order_by('broyage__post__post')
         t1 = Totaliseur_1.objects.filter(filter_tota_1)
         t2 = Totaliseur_2.objects.filter(filter_tota_2)
         
         if t1.filter(post__post__in=['06H-18H', '18H-06H']).exists():
             is_poste_12h = True
     
-        print('t1 ====> :', t1, "t2 ====> :", t2)
-        total_temps_marche = timedelta()
+        temps_marche_total = timedelta()
         temps_marche = timedelta()
-        total_temps_arret = timedelta()
+        temps_arret_total = timedelta()
         total_temps_arret_formate = str()
         
         for t in t1:
@@ -107,16 +106,15 @@ class broyageHomeView(TemplateView):
             setattr(t, 'rendement', rendement)
             setattr(t, 'conso', conso)
             
-            
-            if temps_arret:
-                total_temps_arret += temps_arret
-            else:
-                total_temps_arret = timedelta()
-                
+            # temps_arret_total = obj_pan.aggregate(total=Sum('duree'))['total'] or timedelta()
+            temps_arret_total += temps_arret          
              
-            total_temps_arret_formate = get_date_formate(total_temps_arret)      
-        
-        
+            total_temps_arret_formate = get_date_formate(temps_arret_total)  
+                
+            print('conso', conso)
+            print('temps_arret ===> ', temps_arret)
+            print('temps arret total ===> ', temps_arret_total)
+            
         context.update({
             'role': role,
             'broyage_panne': 'broyage_panne',
@@ -130,7 +128,8 @@ class broyageHomeView(TemplateView):
             'object_pannes': obj_pan,
             'object_totaliseur_1': t1,
             'object_totaliseur_2': t2,
-            'temps_arret_total': total_temps_arret,
+            
+            'temps_arret_total': temps_arret_total,
             'total_temps_arret_formate': total_temps_arret_formate,
             
             'totaliseur_1_06h_14h': t1.filter(post__post='06H-14H'),
@@ -719,13 +718,14 @@ class ajoutBroyagePannes(CreateView):
         t1 = get_object_or_404(Totaliseur_1, slug=slug)
         object_pannes = Pannes.objects.filter(broyage=t1).order_by('pk')
         
-        temps_arret = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
-        total_temps_arret_formate = get_date_formate(temps_arret)
-        print(temps_arret)
+        temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+        total_temps_arret_formate = get_date_formate(temps_arret_total)
+        print(' temps arret total ===> ', temps_arret_total)
              
         context.update({
             'broyage_panne': 'broyage_panne',
             'object_pannes': object_pannes,
+            'temps_arret_total': temps_arret_total,
             'total_temps_arret_formate': total_temps_arret_formate,
         })
         return context
@@ -765,13 +765,14 @@ class updatePanne(UpdateView):
         slug = self.kwargs.get('slug')
         
         object_pannes = Pannes.objects.filter(slug=slug)
-        temps_arret = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
-        total_temps_arret_formate = get_date_formate(temps_arret)
+        temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+        total_temps_arret_formate = get_date_formate(temps_arret_total)
         
         context.update({
             'broyage_panne': 'broyage_panne',
             'update_panne': 'update_panne',
             'object_pannes': object_pannes,
+            'temps_arret': temps_arret_total,
             'total_temps_arret_formate': total_temps_arret_formate,
         })
         return context

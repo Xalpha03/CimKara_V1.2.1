@@ -38,7 +38,7 @@ def get_operational_date():
     current_time = now.time()
 
     # Si on est avant 6h → c'est encore la journée d'hier
-    if current_time < time(7, 15):
+    if current_time < time(6, 15):
         operational_date = (now - timedelta(days=1)).date()
     else:
         operational_date = now.date()
@@ -422,7 +422,7 @@ class packingHomeView(TemplateView):
         filter_pann &= Q(packing__date=search_date)
         
         object_pack = Packing.objects.filter(filter_pack)
-        object_pannes = Pannes.objects.filter(filter_pann).order_by('packing__post__post', '-start_panne')
+        object_pannes = Pannes.objects.filter(filter_pann).order_by('packing__post__post')
         print(object_pack.exists())
         temps_marche = timedelta()
         total_temps_arret = timedelta()
@@ -438,10 +438,9 @@ class packingHomeView(TemplateView):
             rend = Decimal(p.livraison)/Decimal(temps_marche.total_seconds()/3600) if p.livraison else Decimal(0.0)
             rend = rend.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             temps_marche_formate = get_date_formate(temps_marche)
-            if temps_arret:
-                total_temps_arret += temps_arret
-            else:
-                total_temps_arret = timedelta()
+            
+            # total_temps_arret = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
+            total_temps_arret += temps_arret
                 
             total_temps_arret_formate = get_date_formate(total_temps_arret)
             
@@ -653,7 +652,7 @@ class packingPanneUserView(TemplateView):
                 year = date.today().year
                 filter_pann &= Q(packing__date__month=month, packing__date__year=year)
                 
-        object_pannes = Pannes.objects.filter(filter_pann).order_by('pk')
+        object_pannes = Pannes.objects.filter(filter_pann).order_by('-packing__post__post', '-packing__date')
         temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
         total_temps_arret_formate = get_date_formate(temps_arret_total)
         
@@ -894,7 +893,7 @@ class packingPanneAdminView(TemplateView):
                 year = date.today().year
                 filter_pann &= Q(packing__date__year=year)
                 
-        object_pannes = Pannes.objects.filter(filter_pann).order_by('pk')
+        object_pannes = Pannes.objects.filter(filter_pann).order_by('-packing__date')
         temps_arret_total = object_pannes.aggregate(total=Sum('duree'))['total'] or timedelta()
         total_temps_arret_formate = get_date_formate(temps_arret_total)
         
