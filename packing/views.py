@@ -188,7 +188,7 @@ class homeView(TemplateView):
             total_vrack += Decimal(t.vrack or 0.0) if t.vrack else Decimal()
             total_sum_liv_vrack += Decimal(som_liv_vrack or 0.0) if som_liv_vrack else Decimal()
             total_casse += t.casse if t.casse else int()
-            total_tx_casse = Decimal((total_casse*100)/(total_ensache - total_casse)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            total_tx_casse = Decimal((total_casse*100)/(total_ensache - total_casse)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if total_casse > 0 else Decimal('0.0')
             total_rendement = Decimal(livraison_total/(temps_marche_total.total_seconds()/3600)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             temps_marche_total_format = get_date_formate(temps_marche_total)
             
@@ -957,6 +957,13 @@ class ajout_Packing(CreateView):
         form.instance.site = site
         post = form.cleaned_data.get('post')
         date = form.cleaned_data.get('date')
+        
+        user_post_existe = Packing.objects.filter(
+            post = post,
+            date = date,
+        ).exists()
+        
+        
         existe = Packing.objects.filter(
             site = site,
             post = post,
@@ -967,6 +974,12 @@ class ajout_Packing(CreateView):
             messages.warning(
                 self.request, "Un objet pour ce poste existe déjà aujourd’hui.")
             return redirect('packing:ajout_packing')
+        
+        elif user_post_existe:
+            messages.warning(
+                self.request, "Vous avez déjà enregistré un ensachage pour ce poste aujourd’hui.")
+            return redirect('packing:ajout_packing')
+        
         else:
             messages.success(self.request, "✅ Ensachage enregistré avec succès.")
             
@@ -1018,6 +1031,37 @@ class update_packing(UpdateView):
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
     success_url = reverse_lazy('packing:packing_home')
+    
+    
+    def form_valid(self, form):
+        self.object = self.get_object()  # ✅ important : récupérer l’objet avant tout
+
+        user = self.request.user
+        profil = getattr(user, 'profil', None)
+        site = profil.site if profil else None
+
+        form.instance.user = user
+        form.instance.site = site
+        post = form.cleaned_data.get('post')
+        date = form.cleaned_data.get('date')
+
+        existe = Packing.objects.filter(
+            site=site,
+            post=post,
+            date=date,
+        ).exclude(pk=self.object.pk).exists()  # ✅ exclusion de l’objet actuel
+
+        if existe:
+            messages.warning(
+                self.request,
+                "Un objet pour ce poste existe déjà aujourd’hui."
+            )
+            return redirect(self.request.path)  # ✅ renvoie sur la même page d’édition
+
+        messages.success(self.request, "✅ Ensachage mis à jour avec succès.")
+        return super().form_valid(form)
+
+
     
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
